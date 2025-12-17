@@ -1,5 +1,4 @@
 const API_URL = "/api/exploits";
-
 const list = document.getElementById("exploit-list");
 const searchInput = document.getElementById("search");
 const filterButtons = document.querySelectorAll(".filters button");
@@ -11,112 +10,96 @@ const countPatched = document.getElementById("count-patched");
 let exploits = [];
 let currentFilter = "all";
 
-function statusClass(status = "") {
-  status = status.toLowerCase();
-  if (status.includes("work")) return "working";
-  if (status.includes("patch")) return "patched";
-  return "unknown";
-}
-
-function showLoading() {
-  list.innerHTML = "";
-  for (let i = 0; i < 6; i++) {
-    const skel = document.createElement("div");
-    skel.className = "skeleton";
-    list.appendChild(skel);
-  }
+// 1. Sesuaikan LOGIKA STATUS
+// detected: true = PATCHED (Bahaya)
+// detected: false = WORKING (Aman)
+function getStatusInfo(detected) {
+    if (detected === true) {
+        return { text: "PATCHED", class: "patched" };
+    } else {
+        return { text: "WORKING", class: "working" };
+    }
 }
 
 function updateCounters() {
-  const working = exploits.filter(e =>
-    e.status?.toLowerCase().includes("work")
-  ).length;
+    // Menghitung berdasarkan boolean 'detected' di JSON kamu
+    const workingCount = exploits.filter(e => e.detected === false).length;
+    const patchedCount = exploits.filter(e => e.detected === true).length;
 
-  const patched = exploits.filter(e =>
-    e.status?.toLowerCase().includes("patch")
-  ).length;
-
-  countAll.textContent = exploits.length;
-  countWorking.textContent = working;
-  countPatched.textContent = patched;
+    countAll.textContent = exploits.length;
+    countWorking.textContent = workingCount;
+    countPatched.textContent = patchedCount;
 }
 
 function render(data) {
-  list.innerHTML = "";
+    list.innerHTML = "";
 
-  if (data.length === 0) {
-    list.innerHTML = "<p>No exploit found.</p>";
-    return;
-  }
+    if (data.length === 0) {
+        list.innerHTML = "<p>No exploit found.</p>";
+        return;
+    }
 
-  data.forEach(ex => {
-    const card = document.createElement("div");
-    card.className = "card";
+    data.forEach(ex => {
+        const card = document.createElement("div");
+        card.className = "card";
 
-    card.innerHTML = `
-      <h2>${ex.name}</h2>
-      <span class="badge ${statusClass(ex.status)}">
-        ${ex.status || "UNKNOWN"}
-      </span>
-    `;
+        const status = getStatusInfo(ex.detected);
 
-    list.appendChild(card);
-  });
+        // PENTING: Gunakan ex.title (karena di JSON kamu kuncinya 'title')
+        card.innerHTML = `
+            <h2>${ex.title || "Unknown Name"}</h2>
+            <p>Platform: ${ex.platform || "N/A"}</p>
+            <span class="badge ${status.class}">
+                ${status.text}
+            </span>
+        `;
+        list.appendChild(card);
+    });
 }
 
 function applyFilters() {
-  let filtered = [...exploits];
+    let filtered = [...exploits];
 
-  if (currentFilter === "working") {
-    filtered = filtered.filter(e =>
-      e.status?.toLowerCase().includes("work")
-    );
-  }
+    // Filter berdasarkan tombol
+    if (currentFilter === "working") {
+        filtered = filtered.filter(e => e.detected === false);
+    } else if (currentFilter === "patched") {
+        filtered = filtered.filter(e => e.detected === true);
+    }
 
-  if (currentFilter === "patched") {
-    filtered = filtered.filter(e =>
-      e.status?.toLowerCase().includes("patch")
-    );
-  }
+    // Filter Search (berdasarkan title)
+    const q = searchInput.value.toLowerCase();
+    if (q) {
+        filtered = filtered.filter(e => 
+            e.title && e.title.toLowerCase().includes(q)
+        );
+    }
 
-  const q = searchInput.value.toLowerCase();
-  if (q) {
-    filtered = filtered.filter(e =>
-      e.name.toLowerCase().includes(q)
-    );
-  }
-
-  filtered.sort((a, b) => {
-    const aw = a.status?.toLowerCase().includes("work");
-    const bw = b.status?.toLowerCase().includes("work");
-    return bw - aw;
-  });
-
-  render(filtered);
+    render(filtered);
 }
 
 async function loadExploits() {
-  showLoading();
-  try {
-    const res = await fetch(API_URL);
-    exploits = await res.json();
-    updateCounters();
-    applyFilters();
-  } catch {
-    list.innerHTML = "<p>Failed to load data.</p>";
-  }
+    try {
+        const res = await fetch(API_URL);
+        exploits = await res.json();
+        updateCounters();
+        applyFilters();
+    } catch (err) {
+        console.error("Gagal load:", err);
+        list.innerHTML = "<p>Failed to load data.</p>";
+    }
 }
 
+// Event Listeners
 filterButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelector(".filters .active").classList.remove("active");
-    btn.classList.add("active");
-    currentFilter = btn.dataset.filter;
-    applyFilters();
-  });
+    btn.addEventListener("click", () => {
+        document.querySelector(".filters .active").classList.remove("active");
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        applyFilters();
+    });
 });
 
 searchInput.addEventListener("input", applyFilters);
 
 loadExploits();
-setInterval(loadExploits, 60000);
