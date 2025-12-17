@@ -17,48 +17,53 @@ document.addEventListener("DOMContentLoaded", () => {
         const internals = data.filter(ex => ex.extype === "wexecutor");
         const externals = data.filter(ex => ex.extype === "wexternal");
         const macos = data.filter(ex => ex.extype === "mexecutor");
+const createCard = (ex) => {
+    const card = document.createElement("div");
+    
+    // ============================================================
+    // LOGIKA 1: WARNA KOTAK (HANYA DARI UPDATESTATUS)
+    // ============================================================
+    if (ex.updateStatus === true) {
+        card.className = "card status-working"; // Background Hijau
+    } else {
+        card.className = "card status-patched"; // Background Merah
+    }
 
-        const createCard = (ex) => {
-            const card = document.createElement("div");
-            
-            // --- LOGIKA 1: WARNA BACKGROUND (HANYA UPDATESTATUS) ---
-            if (ex.updateStatus === true) {
-                card.className = "card status-working"; // Hijau
-            } else if (ex.updateStatus === false) {
-                card.className = "card status-patched"; // Merah
-            } else {
-                card.className = "card";
-            }
+    // ============================================================
+    // LOGIKA 2: TEKS BADGE (HANYA DARI DETECTED & CLIENTMODS)
+    // ============================================================
+    let statusText = "";
+    let badgeColorClass = ""; 
 
-            // --- LOGIKA 2: TEKS & WARNA BADGE (MURNI DETEKSI) ---
-            // Di sini kita abaikan updateStatus agar teks tidak berubah paksa
-            let statusText = "";
-            let badgeColorClass = ""; 
+    if (ex.detected === true) {
+        // Jika terdeteksi, teks jadi PATCHED (warna merah)
+        statusText = "PATCHED";
+        badgeColorClass = "patched"; 
+    } else if (ex.clientmods === true) {
+        // Jika clientmods true, teks jadi BYPASSED (warna ungu)
+        statusText = "BYPASSED";
+        badgeColorClass = "bypassed"; 
+    } else if (ex.clientmods === false) {
+        // Jika clientmods false, teks jadi DETECTED (warna oranye)
+        statusText = "DETECTED";
+        badgeColorClass = "detected-warn"; 
+    } else {
+        // Jika semua di atas tidak terpenuhi, teks tetap UNDETECTED (warna hijau)
+        statusText = "UNDETECTED";
+        badgeColorClass = "working"; 
+    }
 
-            if (ex.detected === true) {
-                statusText = "PATCHED";
-                badgeColorClass = "patched"; 
-            } else if (ex.clientmods === true) {
-                statusText = "BYPASSED";
-                badgeColorClass = "bypassed"; 
-            } else if (ex.clientmods === false) {
-                statusText = "DETECTED";
-                badgeColorClass = "detected-warn"; 
-            } else {
-                // Jika tidak terdeteksi, teks tetap UNDETECTED meskipun kartu merah
-                statusText = "UNDETECTED";
-                badgeColorClass = "working"; 
-            }
-
-            card.innerHTML = `
-                <h2>${ex.title}</h2>
-                <p>Platform: ${ex.platform}</p>
-                <span class="badge ${badgeColorClass}">${statusText}</span>
-            `;
-            
-            card.onclick = () => openModal(ex._id);
-            return card;
-        };
+    // Bagian HTML Card
+    card.innerHTML = `
+        <h2>${ex.title}</h2>
+        <p>Platform: ${ex.platform}</p>
+        <span class="badge ${badgeColorClass}">${statusText}</span>
+    `;
+    
+    card.onclick = () => openModal(ex._id);
+    return card;
+};
+Cara Kerjanya Sekarang:
 
         const addGroup = (title, items) => {
             if (items.length > 0) {
