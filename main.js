@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let exploits = [];
     let currentStatus = "all";
 
-    // 1. FUNGSI UNTUK MERENDER KARTU KE LIST
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
@@ -26,15 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
             let statusText = "WORKING";
             let statusClass = "working";
 
-            // Logika Status Badge di Halaman Utama
+            // LOGIKA BADGE HALAMAN UTAMA
             if (ex.updateStatus) {
                 statusText = "PATCHED";
                 statusClass = "patched";
+            } else if (ex.clientmods) { // JIKA clientmods true, gunakan warna UNGU
+                statusText = "WORKING (CLIENT MODS)";
+                statusClass = "bypassed"; 
             } else if (ex.bypassed) {
                 statusText = "WORKING (BYPASSED)";
                 statusClass = "bypassed";
             } else if (ex.detected) {
-                // Tetap "WORKING" tapi warna orange (detected-warn)
                 statusClass = "detected-warn";
             }
 
@@ -62,29 +63,29 @@ document.addEventListener("DOMContentLoaded", () => {
         addGroup("MACOS EXECUTORS", macos);
     }
 
-    // 2. FUNGSI MODAL (DETAIL EXPLOIT)
     function openModal(id) {
         const ex = exploits.find(e => (e._id === id || e.id === id));
         if (!ex) return;
         
         modal.classList.remove("hidden");
-        
-        // Judul & Logo
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
 
-        // Perbaikan Deskripsi (Mencari di beberapa field agar tidak "No Description")
-        const longDesc = ex.slug?.fullDescription || ex.description || ex.cost || "No additional description available for this exploit.";
+        const longDesc = ex.slug?.fullDescription || ex.description || ex.cost || "No additional description available.";
         document.getElementById("modal-description").textContent = longDesc;
 
-        // Logika Teks Peringatan Khusus di Modal
         const warnBox = document.getElementById("modal-warning-text");
         let warnText = "", warnColor = "", modalTag = "";
 
+        // LOGIKA PENENTUAN TEXT PERINGATAN (MODAL)
         if (ex.updateStatus) {
             warnText = "This Exploit is currently patched due to a Roblox update.";
             warnColor = "red";
             modalTag = "🔴 PATCHED";
+        } else if (ex.clientmods) { // LOGIKA BARU: Jika clientmods true
+            warnText = "This Exploit is using Client Modification methods, which may carry a higher risk of bans.";
+            warnColor = "purple";
+            modalTag = "🟣 CLIENT MODS";
         } else if (ex.bypassed) {
             warnText = "This Exploit Bypassed Client Modification bans but potentially could cause bans in banwaves";
             warnColor = "purple";
@@ -102,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
         warnBox.textContent = warnText;
         warnBox.className = `warning-box ${warnColor}`;
 
-        // Set Info Grid (Type, Price, Version)
         const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
         const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
 
@@ -113,16 +113,13 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
         `;
         
-        // UNC & sUNC
         document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
         document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
 
-        // Links
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     }
 
-    // 3. FUNGSI FILTER & SEARCH
     function applyFilters() {
         let f = exploits.filter(ex => {
             const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
@@ -135,36 +132,25 @@ document.addEventListener("DOMContentLoaded", () => {
         render(f);
     }
 
-    // 4. FUNGSI LOAD DATA DARI API
     async function load() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-
-            // UPDATE ANGKA COUNTER (ALL, WORKING, PATCHED)
             document.getElementById("count-all").textContent = exploits.length;
             document.getElementById("count-working").textContent = exploits.filter(e => !e.updateStatus).length;
             document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus).length;
-
             applyFilters();
-        } catch (error) {
-            console.error("Gagal memuat data:", error);
-        }
+        } catch (error) { console.error(error); }
     }
 
-    // EVENT LISTENERS
     searchInput.addEventListener("input", applyFilters);
     typeFilter.addEventListener("change", applyFilters);
-    
     filterButtons.forEach(btn => btn.onclick = () => {
         document.querySelector(".filters .active")?.classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
-
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-
-    // Jalankan Load
     load();
 });
