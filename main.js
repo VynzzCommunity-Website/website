@@ -1,92 +1,175 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Roblox Exploit Tracker</title>
-    <link rel="stylesheet" href="style.css" />
-    <style>
-        .main-footer {
-            text-align: center;
-            padding: 40px 20px;
-            font-family: sans-serif;
-            width: 100%;
-            background: transparent;
+const API_URL = "/api/exploits";
+
+document.addEventListener("DOMContentLoaded", () => {
+    const list = document.getElementById("exploit-list");
+    const searchInput = document.getElementById("search");
+    const typeFilter = document.getElementById("type-filter");
+    const filterButtons = document.querySelectorAll(".filters button");
+    const modal = document.getElementById("exploit-modal");
+    
+    let exploits = [];
+    let currentStatus = "all";
+
+    function render(data) {
+        if (!list) return;
+        list.innerHTML = "";
+        
+        
+        const windows = data.filter(ex => ex.extype === "wexecutor");
+        const androids = data.filter(ex => ex.extype === "aexecutor");
+        const ios = data.filter(ex => ex.extype === "iexecutor");
+        const macos = data.filter(ex => ex.extype === "mexecutor");
+        const externals = data.filter(ex => ex.extype === "wexternal");
+
+        const createCard = (ex) => {
+            const card = document.createElement("div");
+            
+            if (ex.updateStatus === true) {
+                card.className = "card status-working"; 
+            } else {
+                card.className = "card status-patched"; 
+            }
+
+            let statusText = "";
+            let badgeColorClass = ""; 
+
+            if (ex.clientmods === true) {
+                statusText = "BYPASSED";
+                badgeColorClass = "bypassed"; 
+            } else if (ex.detected === true) {
+                statusText = "PATCHED";
+                badgeColorClass = "patched"; 
+            } else if (ex.clientmods === false) {
+                statusText = "DETECTED";
+                badgeColorClass = "detected-warn"; 
+            } else {
+                statusText = "UNDETECTED";
+                badgeColorClass = "working"; 
+            }
+
+            card.innerHTML = `
+                <h2>${ex.title}</h2>
+                <p>Platform: ${ex.platform}</p>
+                <span class="badge ${badgeColorClass}">${statusText}</span>
+            `;
+            
+            card.onclick = () => openModal(ex._id);
+            return card;
+        };
+
+        const addGroup = (title, items) => {
+            if (items.length > 0) {
+                const h = document.createElement("div");
+                h.className = "group-header";
+                h.innerHTML = `<span>${title}</span>`;
+                list.appendChild(h);
+                
+                const gridWrapper = document.createElement("div");
+                gridWrapper.className = "grid";
+                
+                items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
+                list.appendChild(gridWrapper);
+            }
+        };
+
+        addGroup("WINDOWS EXECUTORS", windows);
+        addGroup("ANDROID EXECUTORS", androids);
+        addGroup("iOS EXECUTORS", ios);
+        addGroup("MACOS EXECUTORS", macos);
+        addGroup("EXTERNAL EXECUTORS", externals);
+    }
+
+    function openModal(id) {
+        const ex = exploits.find(e => (e._id === id || e.id === id));
+        if (!ex) return;
+        
+        modal.classList.remove("hidden");
+        document.getElementById("modal-title").textContent = ex.title;
+        document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
+        document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
+
+        const warnBox = document.getElementById("modal-warning-text");
+        
+        let customMsg = "";
+        let msgColor = "";
+
+        if (ex.clientmods === true) {
+            customMsg = "This Exploits bypasses client modification bans but potentially could cause ban in banwaves";
+            msgColor = "purple";
+        } else if (ex.clientmods === false) {
+            customMsg = "This Exploit might be detected by hyperion, use at your own risk";
+            msgColor = "orange";
+        } else if (ex.detected === false) {
+            customMsg = "This Exploit is reported as undetected";
+            msgColor = "blue-hologram";
+        } else {
+            customMsg = "Status Unknown";
+            msgColor = "red";
         }
-        .text-powered {
-            font-size: 11px;
-            color: #888;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin: 0;
+
+        warnBox.textContent = customMsg;
+        warnBox.className = `warning-box ${msgColor}`;
+
+        const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
+        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+
+        document.getElementById("modal-extra-info").innerHTML = `
+            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
+            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
+            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
+        `;
+        
+        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
+        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
+
+        document.getElementById("modal-website").href = ex.websitelink || "#";
+        document.getElementById("modal-discord").href = ex.discordlink || "#";
+    }
+
+    function applyFilters() {
+        let f = exploits.filter(ex => {
+            const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
+            const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
+            let matchStatus = true;
+            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
+            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
+            return matchSearch && matchType && matchStatus;
+        });
+        render(f);
+    }
+
+    async function load() {
+        try {
+            const res = await fetch(API_URL);
+            exploits = await res.json();
+            
+            const cAll = document.getElementById("count-all");
+            const cWork = document.getElementById("count-working");
+            const cPatch = document.getElementById("count-patched");
+
+            if(cAll) cAll.textContent = exploits.length;
+            if(cWork) cWork.textContent = exploits.filter(e => e.updateStatus === true).length;
+            if(cPatch) cPatch.textContent = exploits.filter(e => e.updateStatus === false).length;
+            
+            applyFilters();
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Failed to load exploits. Please try again later.</p>';
         }
-        .text-community {
-            font-size: 9px;
-            color: #bbb;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin: 5px 0 0 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <div class="title-row">
-                <h1>Roblox Executor Update Tracker</h1>
-                <div class="live"><span class="dot"></span> LIVE</div>
-            </div>
-            <p>Real-time exploit availability tracker</p>
-            <div class="counters">
-                <span>All: <strong id="count-all">0</strong></span>
-                <span>Working: <strong id="count-working">0</strong></span>
-                <span>Patched: <strong id="count-patched">0</strong></span>
-            </div>
-            <input type="text" id="search" placeholder="Search exploit..." autocomplete="off" />
-            <div class="filters">
-                <button data-filter="all" class="active">All</button>
-                <button data-filter="working">Working</button>
-                <button data-filter="patched">Patched</button>
-                <select id="type-filter" class="type-select">
-                    <option value="all">All Types</option>
-                    <option value="wexecutor">Windows</option>
-                    <option value="aexecutor">Android</option>
-                    <option value="iexecutor">iOS</option>
-                    <option value="mexecutor">MacOS</option>
-                    <option value="wexternal">External</option>
-                </select>
-            </div>
-        </header>
+    }
 
-        <section id="exploit-list"></section>
-    </div>
-
-    <footer class="main-footer">
-        <p class="text-powered">Powered By <span style="color: #555; font-weight: 600;">Vynzz Exploit</span></p>
-        <p class="text-community">Big Thanks <span style="color: #999; font-weight: 500;">DIFZ25X COMMUNITY</span></p>
-    </footer>
-
-    <div id="exploit-modal" class="modal hidden">
-        <div class="modal-content">
-            <button id="close-modal">✕</button>
-            <div class="modal-header">
-                <img id="modal-logo" src="" alt="Logo">
-                <h2 id="modal-title"></h2>
-            </div>
-            <p id="modal-description"></p>
-            <div id="modal-warning-text" class="warning-box"></div>
-            <div class="stats-row">
-                <div id="modal-unc" class="stat-badge"></div>
-                <div id="modal-sunc" class="stat-badge"></div>
-            </div>
-            <div id="modal-extra-info" class="modal-grid-info"></div>
-            <div class="links-row">
-                <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
-                <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+    searchInput.addEventListener("input", applyFilters);
+    if(typeFilter) typeFilter.addEventListener("change", applyFilters);
+    filterButtons.forEach(btn => btn.onclick = () => {
+        document.querySelector(".filters .active")?.classList.remove("active");
+        btn.classList.add("active");
+        currentStatus = btn.dataset.filter;
+        applyFilters();
+    });
+    document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    };
+    load();
+});
