@@ -63,7 +63,6 @@ const createCard = (ex) => {
     card.onclick = () => openModal(ex._id);
     return card;
 };
-Cara Kerjanya Sekarang:
 
         const addGroup = (title, items) => {
             if (items.length > 0) {
