@@ -1,7 +1,6 @@
 const API_URL = "/api/exploits";
 
 document.addEventListener("DOMContentLoaded", () => {
-
     const list = document.getElementById("exploit-list");
     const searchInput = document.getElementById("search");
     const filterButtons = document.querySelectorAll(".filters button");
@@ -10,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const countWorking = document.getElementById("count-working");
     const countPatched = document.getElementById("count-patched");
 
-    // MODAL ELEMENTS (BISA NULL)
+    // MODAL ELEMENTS
     const modal = document.getElementById("exploit-modal");
     const modalTitle = document.getElementById("modal-title");
     const modalDescription = document.getElementById("modal-description");
@@ -44,56 +43,53 @@ document.addEventListener("DOMContentLoaded", () => {
         countPatched.textContent = exploits.filter(e => e.detected).length;
     }
 
-    // ⭐ MODAL (DETAIL DARI API)
-    async function openModal(exploitId) {
+    // ⭐ FIX: Fungsi ini sekarang mengambil data dari array 'exploits' 
+    // Tidak lagi memanggil API tambahan untuk menghindari 404
+    function openModal(exploitId) {
         if (!modal) return;
 
-        try {
-            modalTitle && (modalTitle.textContent = "Loading...");
-            modalDescription && (modalDescription.textContent = "");
-            modal.classList.remove("hidden");
+        // Cari data di memori lokal
+        const ex = exploits.find(e => (e._id === exploitId || e.id === exploitId));
 
-            const res = await fetch(`${API_URL}/${exploitId}`);
-            if (!res.ok) throw new Error();
+        if (!ex) {
+            console.error("Exploit data not found locally.");
+            return;
+        }
 
-            const ex = await res.json();
+        // Reset & Tampilkan Modal
+        modal.classList.remove("hidden");
 
-            modalTitle && (modalTitle.textContent = ex.title || "Unknown");
-            modalDescription && (
-                modalDescription.textContent =
-                    ex.slug?.fullDescription || "No description available."
-            );
+        // Masukkan Data
+        if (modalTitle) modalTitle.textContent = ex.title || "Unknown";
+        if (modalDescription) {
+            modalDescription.textContent = ex.slug?.fullDescription || ex.description || "No description available.";
+        }
 
-            modalUNC && (modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`);
-            modalSUNC && (modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`);
+        if (modalUNC) modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`;
+        if (modalSUNC) modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`;
 
-            modalWebsite && (modalWebsite.href = ex.websitelink || "#");
-            modalDiscord && (modalDiscord.href = ex.discordlink || "#");
+        if (modalWebsite) modalWebsite.href = ex.websitelink || "#";
+        if (modalDiscord) modalDiscord.href = ex.discordlink || "#";
 
-            if (modalLogo) {
-                modalLogo.src = ex.slug?.logo || "";
-                modalLogo.style.display = modalLogo.src ? "block" : "none";
-            }
-
-        } catch {
-            modalTitle && (modalTitle.textContent = "Failed to load exploit");
-            modalDescription && (modalDescription.textContent = "");
+        if (modalLogo) {
+            const logoSrc = ex.slug?.logo || ex.logo || "";
+            modalLogo.src = logoSrc;
+            modalLogo.style.display = logoSrc ? "block" : "none";
         }
     }
 
-    // ⭐ CLOSE MODAL (SAFE)
-    if (closeModal && modal) {
+    // ⭐ CLOSE MODAL LOGIC
+    if (closeModal) {
         closeModal.onclick = () => modal.classList.add("hidden");
     }
 
-    if (modal) {
-        modal.onclick = e => {
-            if (e.target === modal) modal.classList.add("hidden");
-        };
-    }
+    window.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    };
 
     // ⭐ RENDER LIST
     function render(data) {
+        if (!list) return;
         list.innerHTML = "";
 
         if (!data || data.length === 0) {
@@ -103,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         data.forEach(ex => {
             const status = getStatusInfo(ex.detected);
-
             const card = document.createElement("div");
             card.className = "card";
             card.style.cursor = "pointer";
@@ -116,7 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 </span>
             `;
 
-            card.onclick = () => openModal(ex._id);
+            // Kirim ID ke fungsi openModal
+            card.onclick = () => openModal(ex._id || ex.id);
             list.appendChild(card);
         });
     }
@@ -149,8 +145,9 @@ document.addEventListener("DOMContentLoaded", () => {
             updateCounters();
             applyFilters();
 
-        } catch {
-            list.innerHTML = "<p>Failed to load data.</p>";
+        } catch (err) {
+            console.error("Load error:", err);
+            if (list) list.innerHTML = "<p>Failed to load data from API.</p>";
         }
     }
 
