@@ -3,96 +3,36 @@ const API_URL = "/api/exploits";
 document.addEventListener("DOMContentLoaded", () => {
     const list = document.getElementById("exploit-list");
     const searchInput = document.getElementById("search");
+    const typeFilter = document.getElementById("type-filter");
     const filterButtons = document.querySelectorAll(".filters button");
     const modal = document.getElementById("exploit-modal");
     
     let exploits = [];
-    let currentFilter = "all";
+    let currentStatus = "all";
 
-    // Fungsi pembantu untuk icon platform
-    const getPlatformIcon = (p) => p === "Windows" ? "🪟" : p === "Android" ? "🤖" : p === "iOS" ? "🍎" : p === "Mac" ? "💻" : "";
-
-    function updateCounters() {
-        const countAll = document.getElementById("count-all");
-        const countWorking = document.getElementById("count-working");
-        const countPatched = document.getElementById("count-patched");
-        if (countAll) countAll.textContent = exploits.length;
-        if (countWorking) countWorking.textContent = exploits.filter(e => !e.detected).length;
-        if (countPatched) countPatched.textContent = exploits.filter(e => e.detected).length;
-    }
-
-    function openModal(exploitId) {
-        if (!modal) return;
-        const ex = exploits.find(e => (e._id === exploitId || e.id === exploitId));
-        if (!ex) return;
-
-        modal.classList.remove("hidden");
-
-        // Set Text Dasar
-        document.getElementById("modal-title").textContent = ex.title || "Unknown";
-        
-        // FIX DESKRIPSI: Jika slug.fullDescription kosong, pakai deskripsi cadangan
-        const descElement = document.getElementById("modal-description");
-        descElement.textContent = (ex.slug?.fullDescription && ex.slug.fullDescription !== "") 
-            ? ex.slug.fullDescription 
-            : "No detailed description available for this exploit.";
-
-        // FIX LOGO
-        const logoImg = document.getElementById("modal-logo");
-        if (logoImg) {
-            logoImg.src = ex.slug?.logo || "";
-            logoImg.style.display = ex.slug?.logo ? "block" : "none";
-        }
-
-        // FIX UNC/SUNC: Jika tidak ada di JSON, tampilkan N/A bukan 0%
-        const uncElem = document.getElementById("modal-unc");
-        const suncElem = document.getElementById("modal-sunc");
-        
-        if (uncElem) {
-            const val = ex.uncPercentage !== undefined ? `${ex.uncPercentage}%` : "N/A";
-            uncElem.innerHTML = `<span class="val">${val}</span><span class="lbl">UNC RATE</span>`;
-        }
-        if (suncElem) {
-            const val = ex.suncPercentage !== undefined ? `${ex.suncPercentage}%` : "N/A";
-            suncElem.innerHTML = `<span class="val">${val}</span><span class="lbl">SUNC RATE</span>`;
-        }
-
-        // INFO TAMBAHAN (GRID)
-        const extraInfo = document.getElementById("modal-extra-info");
-        if (extraInfo) {
-            extraInfo.innerHTML = `
-                <div class="info-item"><label>Status</label><span>${ex.detected ? '🔴 Patched' : '🟢 Working'}</span></div>
-                <div class="info-item"><label>Price</label><span>${ex.free ? 'FREE' : (ex.cost || 'PAID')}</span></div>
-                <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
-                <div class="info-item"><label>Platform</label><span>${ex.platform}</span></div>
-                <div class="info-item"><label>Decompiler</label><span>${ex.decompiler ? '✅' : '❌'}</span></div>
-                <div class="info-item"><label>Key System</label><span>${ex.keysystem ? 'Yes' : 'No'}</span></div>
-            `;
-        }
-
-        // LINK BUTTONS
-        const webBtn = document.getElementById("modal-website");
-        const discBtn = document.getElementById("modal-discord");
-        if (webBtn) {
-            webBtn.href = ex.websitelink || "#";
-            webBtn.style.display = ex.websitelink ? "inline-block" : "none";
-        }
-        if (discBtn) {
-            discBtn.href = ex.discordlink || "#";
-            discBtn.style.display = ex.discordlink ? "inline-block" : "none";
-        }
-    }
-
-    // RENDER LIST KARTU
+    // Fungsi Render List
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
+        
+        if (data.length === 0) {
+            list.innerHTML = "<p style='text-align:center; color:#6b7280; grid-column: 1/-1; padding: 20px;'>No exploit found.</p>";
+            return;
+        }
+
         data.forEach(ex => {
             const card = document.createElement("div");
             card.className = "card";
+            card.style.cursor = "pointer";
+            
+            const typeLabel = ex.extype === 'wexternal' ? 'External' : (ex.extype === 'mexecutor' ? 'MacOS' : 'Internal');
+            
             card.innerHTML = `
-                <h2>${ex.title}</h2>
-                <p>Platform: ${ex.platform} ${getPlatformIcon(ex.platform)}</p>
+                <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <h2 style="margin:0; font-size:1.1rem;">${ex.title}</h2>
+                    <span style="font-size:0.65rem; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">${typeLabel}</span>
+                </div>
+                <p style="margin: 10px 0; font-size:0.85rem; color:#9ca3af;">Platform: ${ex.platform}</p>
                 <span class="badge ${ex.detected ? 'patched' : 'working'}">
                     ${ex.detected ? 'PATCHED' : 'WORKING'}
                 </span>
@@ -102,29 +42,90 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ⭐ LOGIKA FILTER UTAMA (Satu fungsi untuk semua)
+    function applyFilters() {
+        let filtered = [...exploits];
+
+        // 1. Filter Kata Kunci (Search)
+        const query = searchInput.value.toLowerCase().trim();
+        if (query !== "") {
+            filtered = filtered.filter(ex => 
+                ex.title.toLowerCase().includes(query) || 
+                (ex.platform && ex.platform.toLowerCase().includes(query))
+            );
+        }
+
+        // 2. Filter Status (All/Working/Patched)
+        if (currentStatus === "working") {
+            filtered = filtered.filter(ex => !ex.detected);
+        } else if (currentStatus === "patched") {
+            filtered = filtered.filter(ex => ex.detected);
+        }
+
+        // 3. Filter Tipe (Dropdown)
+        const selectedType = typeFilter.value;
+        if (selectedType !== "all") {
+            filtered = filtered.filter(ex => ex.extype === selectedType);
+        }
+
+        render(filtered);
+    }
+
+    // Ambil Data dari API
     async function loadExploits() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            updateCounters();
-            render(exploits);
+            
+            // Update Angka Counter
+            document.getElementById("count-all").textContent = exploits.length;
+            document.getElementById("count-working").textContent = exploits.filter(e => !e.detected).length;
+            document.getElementById("count-patched").textContent = exploits.filter(e => e.detected).length;
+
+            applyFilters();
         } catch (err) {
-            list.innerHTML = "<p>Error loading data.</p>";
+            console.error("Fetch error:", err);
         }
     }
 
-    // Filter Logic
+    // --- EVENT LISTENERS ---
+
+    // Search Input (Real-time)
+    searchInput.addEventListener("input", applyFilters);
+
+    // Dropdown Tipe
+    typeFilter.addEventListener("change", applyFilters);
+
+    // Tombol Status (Working/Patched)
     filterButtons.forEach(btn => {
-        btn.onclick = () => {
+        btn.addEventListener("click", () => {
             document.querySelector(".filters .active")?.classList.remove("active");
             btn.classList.add("active");
-            currentFilter = btn.dataset.filter;
-            let filtered = exploits;
-            if (currentFilter === "working") filtered = exploits.filter(e => !e.detected);
-            if (currentFilter === "patched") filtered = exploits.filter(e => e.detected);
-            render(filtered);
-        };
+            currentStatus = btn.dataset.filter;
+            applyFilters();
+        });
     });
+
+    // Modal & Close Logic
+    function openModal(id) {
+        const ex = exploits.find(e => e._id === id);
+        if (!ex) return;
+        
+        modal.classList.remove("hidden");
+        document.getElementById("modal-title").textContent = ex.title;
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || "No description available.";
+        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage ?? 'N/A'}%</span><span class="lbl">UNC</span>`;
+        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage ?? 'N/A'}%</span><span class="lbl">sUNC</span>`;
+        
+        const extra = document.getElementById("modal-extra-info");
+        extra.innerHTML = `
+            <div class="info-item"><label>Price</label><span>${ex.free ? 'FREE' : (ex.cost || 'PAID')}</span></div>
+            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+        `;
+
+        document.getElementById("modal-website").href = ex.websitelink || "#";
+        document.getElementById("modal-discord").href = ex.discordlink || "#";
+    }
 
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
     window.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
