@@ -21,14 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // WARNA BACKGROUND (UpdateStatus)
+            // 1. WARNA KOTAK (Hanya dari updateStatus)
             if (ex.updateStatus === true) {
                 card.className = "card status-working"; 
             } else {
                 card.className = "card status-patched"; 
             }
 
-            // TEKS BADGE (Detected & Clientmods)
+            // 2. TEKS BADGE (Prioritas: Bypassed > Patched > Detected)
             let statusText = "";
             let badgeColorClass = ""; 
 
@@ -58,15 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const addGroup = (title, items) => {
             if (items.length > 0) {
-                // 1. Tambah Header Grup
+                // Header Grup
                 const h = document.createElement("div");
                 h.className = "group-header";
                 h.innerHTML = `<span>${title}</span>`;
                 list.appendChild(h);
                 
-                // 2. TAMBAHKAN PEMBUNGKUS GRID (Penting agar tidak berjejer ke bawah)
+                // PEMBUNGKUS GRID AGAR MENYAMPING (Sesuai CSS Grid)
                 const gridWrapper = document.createElement("div");
-                gridWrapper.className = "grid"; // Ini yang memicu CSS Grid Anda
+                gridWrapper.className = "grid"; 
                 
                 items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
                 list.appendChild(gridWrapper);
@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const warnBox = document.getElementById("modal-warning-text");
         
+        // --- LOGIKA TEKS DINAMIS SESUAI INSTRUKSI ---
         let customMsg = "";
         let msgColor = "";
 
@@ -102,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             customMsg = "This Exploit is reported as undetected";
             msgColor = "blue-hologram";
         } else {
-            customMsg = "Status Unknown";
+            customMsg = "Status Unknown / Patched";
             msgColor = "red";
         }
 
@@ -151,17 +152,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if(cPatch) cPatch.textContent = exploits.filter(e => e.updateStatus === false).length;
             
             applyFilters();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error loading data:", e); }
     }
 
     searchInput.addEventListener("input", applyFilters);
     if(typeFilter) typeFilter.addEventListener("change", applyFilters);
+    
     filterButtons.forEach(btn => btn.onclick = () => {
         document.querySelector(".filters .active")?.classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
+
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+    
     load();
 });
