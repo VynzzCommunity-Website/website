@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             card.innerHTML = `
-                <h2>${ex.title}</h2>
-                <p>Platform: ${ex.platform}</p>
+                <h2 style="margin-top:0; font-size:1.1rem;">${ex.title}</h2>
+                <p style="color:#9ca3af; font-size:0.8rem;">Platform: ${ex.platform}</p>
                 <span class="badge ${badgeColorClass}">${statusText}</span>
             `;
             
@@ -58,15 +58,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const addGroup = (title, items) => {
             if (items.length > 0) {
+                // 1. Tambah Header Grup
                 const h = document.createElement("div");
                 h.className = "group-header";
                 h.innerHTML = `<span>${title}</span>`;
                 list.appendChild(h);
                 
-                const gridDiv = document.createElement("div");
-                gridDiv.className = "grid";
-                items.forEach(ex => gridDiv.appendChild(createCard(ex)));
-                list.appendChild(gridDiv);
+                // 2. TAMBAHKAN PEMBUNGKUS GRID (Penting agar tidak berjejer ke bawah)
+                const gridWrapper = document.createElement("div");
+                gridWrapper.className = "grid"; // Ini yang memicu CSS Grid Anda
+                
+                items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
+                list.appendChild(gridWrapper);
             }
         };
 
@@ -86,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const warnBox = document.getElementById("modal-warning-text");
         
-        // --- LOGIKA PESAN DINAMIS BARU ---
         let customMsg = "";
         let msgColor = "";
 
@@ -107,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
         warnBox.textContent = customMsg;
         warnBox.className = `warning-box ${msgColor}`;
 
-        // Info platform & harga
         const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
         const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
 
@@ -124,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     }
 
-    // Filter, Search, dan Load tetap sama
     function applyFilters() {
         let f = exploits.filter(ex => {
             const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
@@ -141,9 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            document.getElementById("count-all").textContent = exploits.length;
-            document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
-            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
+            
+            const cAll = document.getElementById("count-all");
+            const cWork = document.getElementById("count-working");
+            const cPatch = document.getElementById("count-patched");
+
+            if(cAll) cAll.textContent = exploits.length;
+            if(cWork) cWork.textContent = exploits.filter(e => e.updateStatus === true).length;
+            if(cPatch) cPatch.textContent = exploits.filter(e => e.updateStatus === false).length;
+            
             applyFilters();
         } catch (e) { console.error(e); }
     }
@@ -151,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     searchInput.addEventListener("input", applyFilters);
     if(typeFilter) typeFilter.addEventListener("change", applyFilters);
     filterButtons.forEach(btn => btn.onclick = () => {
-        document.querySelector(".filters .active").classList.remove("active");
+        document.querySelector(".filters .active")?.classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
