@@ -7,14 +7,13 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
     <div class="container">
         <header>
             <div class="title-row">
                 <h1>Exploit Status</h1>
                 <div class="live"><span class="dot"></span> LIVE</div>
             </div>
-            <p>Real-time exploit availability</p>
+            <p>Real-time exploit availability tracker</p>
             <div class="counters">
                 <span>All: <strong id="count-all">0</strong></span>
                 <span>Working: <strong id="count-working">0</strong></span>
@@ -27,33 +26,31 @@
                 <button data-filter="patched">Patched</button>
                 <select id="type-filter" class="type-select">
                     <option value="all">All Types</option>
-                    <option value="wexecutor">Internal</option>
-                    <option value="wexternal">External</option>
+                    <option value="wexecutor">Windows</option>
+                    <option value="aexecutor">Android</option>
+                    <option value="iexecutor">iOS</option>
                     <option value="mexecutor">MacOS</option>
+                    <option value="wexternal">External</option>
                 </select>
             </div>
         </header>
-        <section id="exploit-list" class="grid"></section>
+        <section id="exploit-list"></section>
     </div>
 
     <div id="exploit-modal" class="modal hidden">
         <div class="modal-content">
             <button id="close-modal">✕</button>
             <div class="modal-header">
-                <img id="modal-logo" src="" alt="Logo" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
-                <h2 id="modal-title" style="margin: 0; font-size: 1.2rem;"></h2>
+                <img id="modal-logo" src="" alt="Logo">
+                <h2 id="modal-title"></h2>
             </div>
-            <p id="modal-description" style="color: #9ca3af; font-size: 0.8rem; margin: 15px 0;"></p>
-
-            <div id="modal-warning-text"></div>
-
+            <p id="modal-description"></p>
+            <div id="modal-warning-text" class="warning-box"></div>
             <div class="stats-row">
                 <div id="modal-unc" class="stat-badge"></div>
                 <div id="modal-sunc" class="stat-badge"></div>
             </div>
-
             <div id="modal-extra-info" class="modal-grid-info"></div>
-
             <div class="links-row">
                 <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
                 <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
@@ -61,6 +58,6 @@
         </div>
     </div>
 
-    <script src="main.js" defer></script>
+    <script src="main.js"></script>
 </body>
 </html>
