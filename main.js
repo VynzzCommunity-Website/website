@@ -20,40 +20,33 @@ document.addEventListener("DOMContentLoaded", () => {
 const createCard = (ex) => {
     const card = document.createElement("div");
     
-    // ============================================================
-    // LOGIKA 1: WARNA KOTAK (HANYA DARI UPDATESTATUS)
-    // ============================================================
+    // --- JALUR 1: WARNA KOTAK (Hanya melihat updateStatus) ---
     if (ex.updateStatus === true) {
-        card.className = "card status-working"; // Background Hijau
+        card.className = "card status-working"; // Warna Hijau
     } else {
-        card.className = "card status-patched"; // Background Merah
+        card.className = "card status-patched"; // Warna Merah
     }
 
-    // ============================================================
-    // LOGIKA 2: TEKS BADGE (HANYA DARI DETECTED & CLIENTMODS)
-    // ============================================================
+    // --- JALUR 2: TEKS BADGE (Hanya melihat detected & clientmods) ---
     let statusText = "";
     let badgeColorClass = ""; 
 
     if (ex.detected === true) {
-        // Jika terdeteksi, teks jadi PATCHED (warna merah)
         statusText = "PATCHED";
         badgeColorClass = "patched"; 
     } else if (ex.clientmods === true) {
-        // Jika clientmods true, teks jadi BYPASSED (warna ungu)
         statusText = "BYPASSED";
         badgeColorClass = "bypassed"; 
     } else if (ex.clientmods === false) {
-        // Jika clientmods false, teks jadi DETECTED (warna oranye)
         statusText = "DETECTED";
         badgeColorClass = "detected-warn"; 
     } else {
-        // Jika semua di atas tidak terpenuhi, teks tetap UNDETECTED (warna hijau)
+        // Default jika semua false atau null
         statusText = "UNDETECTED";
         badgeColorClass = "working"; 
     }
 
-    // Bagian HTML Card
+    // Render ke HTML
     card.innerHTML = `
         <h2>${ex.title}</h2>
         <p>Platform: ${ex.platform}</p>
