@@ -14,19 +14,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) return;
         list.innerHTML = "";
         
-        const internals = data.filter(ex => ex.extype === "wexecutor");
-        const externals = data.filter(ex => ex.extype === "wexternal");
-        const macos = data.filter(ex => ex.extype === "mexecutor");
+        // Klasifikasikan data
+        const categories = [
+            { title: "INTERNAL EXECUTORS", key: "wexecutor" },
+            { title: "EXTERNAL EXECUTORS", key: "wexternal" },
+            { title: "MACOS EXECUTORS", key: "mexecutor" }
+        ];
 
         const createCard = (ex) => {
             const card = document.createElement("div");
-            
-            // 1. WARNA KOTAK (Hanya dari updateStatus)
             card.className = ex.updateStatus ? "card status-working" : "card status-patched";
 
-            // 2. TEKS BADGE (Prioritas: Bypassed > Patched > Detected)
-            let statusText = "";
-            let badgeColorClass = ""; 
+            let statusText = "UNDETECTED";
+            let badgeColorClass = "working"; 
 
             if (ex.clientmods === true) {
                 statusText = "BYPASSED";
@@ -37,14 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (ex.clientmods === false) {
                 statusText = "DETECTED";
                 badgeColorClass = "detected-warn"; 
-            } else {
-                statusText = "UNDETECTED";
-                badgeColorClass = "working"; 
             }
 
             card.innerHTML = `
-                <h2 style="margin-top:0; font-size:1.1rem;">${ex.title}</h2>
-                <p style="color:#9ca3af; font-size:0.8rem;">Platform: ${ex.platform}</p>
+                <div>
+                    <h2 style="margin:0; font-size:1.1rem;">${ex.title}</h2>
+                    <p style="color:#9ca3af; font-size:0.8rem; margin: 5px 0 0 0;">Platform: ${ex.platform}</p>
+                </div>
                 <span class="badge ${badgeColorClass}">${statusText}</span>
             `;
             
@@ -52,26 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
             return card;
         };
 
-        const addGroup = (title, items) => {
-            if (items.length > 0) {
-                // Header Grup
-                const h = document.createElement("div");
-                h.className = "group-header";
-                h.innerHTML = `<span>${title}</span>`;
-                list.appendChild(h);
-                
-                // PEMBUNGKUS GRID (CSS grid-template-columns: repeat(3, 1fr) akan bekerja di sini)
-                const gridWrapper = document.createElement("div");
-                gridWrapper.className = "grid"; 
-                
-                items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
-                list.appendChild(gridWrapper);
-            }
-        };
+        // Render per kategori secara berurutan
+        categories.forEach(cat => {
+            const filteredItems = data.filter(ex => ex.extype === cat.key);
+            if (filteredItems.length > 0) {
+                const header = document.createElement("div");
+                header.className = "group-header";
+                header.innerHTML = `<span>${cat.title}</span>`;
+                list.appendChild(header);
 
-        addGroup("INTERNAL EXECUTORS", internals);
-        addGroup("EXTERNAL EXECUTORS", externals);
-        addGroup("MACOS EXECUTORS", macos);
+                const grid = document.createElement("div");
+                grid.className = "grid";
+                filteredItems.forEach(item => grid.appendChild(createCard(item)));
+                list.appendChild(grid);
+            }
+        });
     }
 
     function openModal(id) {
@@ -84,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
-        
         let customMsg = "";
         let msgColor = "";
 

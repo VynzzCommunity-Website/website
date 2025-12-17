@@ -15,7 +15,7 @@ body {
 /* CONTAINER */
 .container {
     padding: 20px 16px;
-    max-width: 1200px; /* Diperlebar sedikit agar 3 kolom lebih leluasa */
+    max-width: 1200px;
     margin: auto;
 }
 
@@ -100,7 +100,7 @@ header p {
     width: 100%;
     display: flex;
     align-items: center;
-    margin: 35px 0 15px 0; /* Margin disesuaikan agar rapat */
+    margin: 40px 0 20px 0; /* Rapi, beri jarak antar kategori */
 }
 
 .group-header span {
@@ -115,13 +115,13 @@ header p {
     border-left: 4px solid #6366f1;
 }
 
-/* FIX 3x1 GRID - PAKSA 3 KOLOM */
+/* FIX 3x1 GRID - BERJEJER KESAMPING, MAKSIMAL 3, SISANYA KEBAWAH */
 .grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
     width: 100%;
-    margin-bottom: 25px; /* Jarak antar grup dipersempit */
+    margin-bottom: 30px;
 }
 
 /* RESPONSIVE */
@@ -133,7 +133,7 @@ header p {
     .grid { grid-template-columns: 1fr; } 
 }
 
-/* --- STYLE KARTU MEWAH --- */
+/* STYLE KARTU */
 .card {
     position: relative;
     background: rgba(255, 255, 255, 0.02);
@@ -143,11 +143,10 @@ header p {
     border: 1px solid rgba(255, 255, 255, 0.08);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 150px; /* Tinggi minimal agar kartu sejajar */
+    min-height: 180px; /* Biar tinggi kotak selalu sama & rapi */
 }
 
 .card:hover {
@@ -183,7 +182,7 @@ header p {
 .bypassed { background: rgba(168, 85, 247, 0.15) !important; color: #a855f7 !important; border: 1px solid rgba(168, 85, 247, 0.2); }
 .patched { background: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-/* MODAL & WARNING BOX */
+/* MODAL */
 .modal {
     position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
     display: flex; align-items: center; justify-content: center;
@@ -195,24 +194,3 @@ header p {
     width: 92%; max-width: 500px; border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
 }
-
-.warning-box {
-    padding: 16px; border-radius: 14px; font-size: 0.85rem; font-weight: 700;
-    margin: 20px 0; text-align: center; border: 1px solid transparent;
-}
-.warning-box.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
-.warning-box.orange { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
-.warning-box.blue-hologram { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: #38bdf8; text-shadow: 0 0 8px #38bdf8; }
-.warning-box.red { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
-
-.stat-badge .val { display: block; font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
-.stat-badge .lbl { font-size: 0.65rem; color: #7dd3fc; font-weight: 800; text-transform: uppercase; }
-
-.modal-grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-.info-item { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.05); }
-
-.btn-link { flex: 1; text-align: center; padding: 15px; border-radius: 14px; font-size: 0.9rem; font-weight: 700; text-decoration: none; }
-#modal-website { background: #38bdf8; color: #020617; }
-#modal-discord { background: #5865F2; color: #fff; }
-
-#close-modal { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.05); border: none; color: #9ca3af; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
