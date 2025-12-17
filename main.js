@@ -22,18 +22,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const card = document.createElement("div");
             card.className = "card";
             
-            let statusText = "WORKING";
-            let statusClass = "working";
+            let statusText = "";
+            let statusClass = ""; // Ini akan menentukan warna background
 
-            // LOGIKA BADGE HALAMAN UTAMA
-            if (ex.updateStatus) {
+            // 1. PENENTUAN TEKS (Berdasarkan detected & clientmods)
+            if (ex.detected === true) {
                 statusText = "PATCHED";
-                statusClass = "patched";
-            } else if (ex.clientmods) {
-                statusText = "WORKING";
-                statusClass = "bypassed";
-            } else if (ex.detected) {
-                statusClass = "detected-warn";
+            } else if (ex.clientmods === true) {
+                statusText = "BYPASSED";
+            } else if (ex.clientmods === false) {
+                statusText = "DETECTED";
+            } else {
+                statusText = "UNDETECTED";
+            }
+
+            // 2. PENENTUAN WARNA BACKGROUND (Berdasarkan updateStatus)
+            // updateStatus: true -> Hijau (working)
+            // updateStatus: false -> Merah (patched)
+            if (ex.updateStatus === true) {
+                statusClass = "working"; // Class Hijau di CSS Anda
+            } else {
+                statusClass = "patched"; // Class Merah di CSS Anda
             }
 
             card.innerHTML = `
@@ -68,29 +77,29 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
 
-        const longDesc = ex.slug?.fullDescription || ex.description || ex.cost || "No additional description available.";
-        document.getElementById("modal-description").textContent = longDesc;
+        document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
         let warnText = "", warnColor = "", modalTag = "";
 
-        // LOGIKA PENENTUAN TEXT PERINGATAN (MODAL)
-        if (ex.updateStatus) {
-            warnText = "This Exploit is currently patched due to a Roblox update.";
-            warnColor = "red";
-            modalTag = "🔴 PATCHED";
-        } else if (ex.clientmods) {
-            warnText = "This Exploit Bypassed Client Modification bans but potentially could cause bans in banwaves";
-            warnColor = "purple";
-            modalTag = "🟣 BYPASSED";
-        } else if (ex.detected) {
-            warnText = "This Exploits Might Be Detected By Hyperion, use at your own risk";
-            warnColor = "orange";
-            modalTag = "🟠 DETECTED";
+        // LOGIKA MODAL (Sesuai Card)
+        if (ex.detected === true) {
+            modalTag = "PATCHED";
+        } else if (ex.clientmods === true) {
+            modalTag = "BYPASSED";
+        } else if (ex.clientmods === false) {
+            modalTag = "DETECTED";
         } else {
-            warnText = "This Exploit Reported As undetected";
+            modalTag = "UNDETECTED";
+        }
+
+        // Warna kotak peringatan di modal mengikuti updateStatus
+        if (ex.updateStatus === true) {
+            warnText = `Status: ${modalTag} - Exploit is up to date.`;
             warnColor = "green";
-            modalTag = "🟢 UNDETECTED";
+        } else {
+            warnText = `Status: ${modalTag} - Update required/Patched.`;
+            warnColor = "red";
         }
 
         warnBox.textContent = warnText;
@@ -118,8 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
             const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
             let matchStatus = true;
-            if (currentStatus === "working") matchStatus = !ex.updateStatus;
-            if (currentStatus === "patched") matchStatus = ex.updateStatus;
+            
+            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
+            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
+            
             return matchSearch && matchType && matchStatus;
         });
         render(f);
@@ -129,13 +140,17 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
+            
+            // COUNTER BERDASARKAN updateStatus
             document.getElementById("count-all").textContent = exploits.length;
-            document.getElementById("count-working").textContent = exploits.filter(e => !e.updateStatus).length;
-            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus).length;
+            document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
+            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
+            
             applyFilters();
-        } catch (error) { console.error(error); }
+        } catch (e) { console.error(e); }
     }
 
+    // Event Listeners tetap sama
     searchInput.addEventListener("input", applyFilters);
     typeFilter.addEventListener("change", applyFilters);
     filterButtons.forEach(btn => btn.onclick = () => {
