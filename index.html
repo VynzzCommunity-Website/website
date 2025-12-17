@@ -52,13 +52,15 @@
             <button id="close-modal">✕</button>
 
             <div class="modal-header">
-                <img id="modal-logo" src="" alt="Logo">
+                <img id="modal-logo" src="https://via.placeholder.com/60" alt="Logo">
                 <div>
-                    <h2 id="modal-title"></h2>
+                    <h2 id="modal-title">Exploit Name</h2>
                 </div>
             </div>
 
             <p id="modal-description"></p>
+
+            <div id="modal-warning-text" class="warning-box"></div>
 
             <div class="stats-row">
                 <div id="modal-unc" class="stat-badge"></div>
@@ -80,7 +82,7 @@
 
     <style>
         .type-select {
-            padding: 8px 12px;
+            padding: 8px 16px;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.05);
             color: #e5e7eb;
@@ -88,7 +90,8 @@
             outline: none;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
             .type-select option {
@@ -99,8 +102,16 @@
         .modal-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
             margin-bottom: 20px;
+        }
+
+        #modal-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 
