@@ -20,12 +20,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const createCard = (ex) => {
             const card = document.createElement("div");
-            card.className = "card";
+            
+            // --- BAGIAN PERUBAHAN WARNA BACKGROUND KARTU ---
+            // Menambahkan class ke element 'card' berdasarkan updateStatus
+            if (ex.updateStatus === true) {
+                card.className = "card status-working"; // Untuk Background Hijau
+            } else if (ex.updateStatus === false) {
+                card.className = "card status-patched"; // Untuk Background Merah
+            } else {
+                card.className = "card"; // Warna Default jika tidak ada status
+            }
             
             let statusText = "";
-            let statusClass = ""; // Ini akan menentukan warna background
+            let badgeClass = ""; // Ini untuk warna badge kecil (jika masih diperlukan)
 
-            // 1. PENENTUAN TEKS (Berdasarkan detected & clientmods)
+            // 1. PENENTUAN TEKS (Tetap sama seperti logika awal Anda)
             if (ex.detected === true) {
                 statusText = "PATCHED";
             } else if (ex.clientmods === true) {
@@ -36,20 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 statusText = "UNDETECTED";
             }
 
-            // 2. PENENTUAN WARNA BACKGROUND (Berdasarkan updateStatus)
-            // updateStatus: true -> Hijau (working)
-            // updateStatus: false -> Merah (patched)
-            if (ex.updateStatus === true) {
-                statusClass = "working"; // Class Hijau di CSS Anda
-            } else {
-                statusClass = "patched"; // Class Merah di CSS Anda
-            }
+            // 2. PENENTUAN CLASS BADGE (Opsional, agar badge tetap punya warna kontras)
+            badgeClass = ex.updateStatus === true ? "working" : "patched";
 
             card.innerHTML = `
                 <h2>${ex.title}</h2>
                 <p>Platform: ${ex.platform}</p>
-                <span class="badge ${statusClass}">${statusText}</span>
+                <span class="badge ${badgeClass}">${statusText}</span>
             `;
+            
             card.onclick = () => openModal(ex._id);
             return card;
         };
@@ -76,13 +80,11 @@ document.addEventListener("DOMContentLoaded", () => {
         modal.classList.remove("hidden");
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
-
         document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
         let warnText = "", warnColor = "", modalTag = "";
 
-        // LOGIKA MODAL (Sesuai Card)
         if (ex.detected === true) {
             modalTag = "PATCHED";
         } else if (ex.clientmods === true) {
@@ -93,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
             modalTag = "UNDETECTED";
         }
 
-        // Warna kotak peringatan di modal mengikuti updateStatus
         if (ex.updateStatus === true) {
             warnText = `Status: ${modalTag} - Exploit is up to date.`;
             warnColor = "green";
@@ -141,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch(API_URL);
             exploits = await res.json();
             
-            // COUNTER BERDASARKAN updateStatus
             document.getElementById("count-all").textContent = exploits.length;
             document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
             document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
@@ -150,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) { console.error(e); }
     }
 
-    // Event Listeners tetap sama
     searchInput.addEventListener("input", applyFilters);
     typeFilter.addEventListener("change", applyFilters);
     filterButtons.forEach(btn => btn.onclick = () => {
