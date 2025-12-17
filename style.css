@@ -15,7 +15,7 @@ body {
 /* CONTAINER */
 .container {
     padding: 20px 16px;
-    max-width: 1200px;
+    max-width: 1200px; /* Diperlebar sedikit agar 3 kolom lebih leluasa */
     margin: auto;
 }
 
@@ -100,7 +100,7 @@ header p {
     width: 100%;
     display: flex;
     align-items: center;
-    margin: 40px 0 20px 0;
+    margin: 35px 0 15px 0; /* Margin disesuaikan agar rapat */
 }
 
 .group-header span {
@@ -115,23 +115,22 @@ header p {
     border-left: 4px solid #6366f1;
 }
 
-/* FIX 3x1 GRID */
+/* FIX 3x1 GRID - PAKSA 3 KOLOM */
 .grid {
     display: grid;
-    /* MEMAKSA 3 KOLOM SEJAJAR */
     grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
     width: 100%;
-    margin-bottom: 40px;
+    margin-bottom: 25px; /* Jarak antar grup dipersempit */
 }
 
-/* RESPONSIVE: Biar gak hancur di layar kecil */
+/* RESPONSIVE */
 @media (max-width: 1024px) {
-    .grid { grid-template-columns: repeat(2, 1fr); } /* 2 kolom di Tablet */
+    .grid { grid-template-columns: repeat(2, 1fr); } 
 }
 
 @media (max-width: 650px) {
-    .grid { grid-template-columns: 1fr; } /* 1 kolom di HP */
+    .grid { grid-template-columns: 1fr; } 
 }
 
 /* --- STYLE KARTU MEWAH --- */
@@ -148,6 +147,7 @@ header p {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-height: 150px; /* Tinggi minimal agar kartu sejajar */
 }
 
 .card:hover {
