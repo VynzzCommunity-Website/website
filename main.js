@@ -21,17 +21,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // --- 1. LOGIKA WARNA KARTU (MURNI UPDATESTATUS) ---
+            // --- LOGIKA 1: WARNA BACKGROUND (HANYA UPDATESTATUS) ---
             if (ex.updateStatus === true) {
-                card.className = "card status-working"; 
+                card.className = "card status-working"; // Hijau
             } else if (ex.updateStatus === false) {
-                card.className = "card status-patched"; 
+                card.className = "card status-patched"; // Merah
             } else {
                 card.className = "card";
             }
 
-            // --- 2. LOGIKA TEKS & WARNA BADGE (MURNI DETECTED/CLIENTMODS) ---
-            // UpdateStatus TIDAK BOLEH masuk ke sini agar teks tidak berubah paksa
+            // --- LOGIKA 2: TEKS & WARNA BADGE (MURNI DETEKSI) ---
+            // Di sini kita abaikan updateStatus agar teks tidak berubah paksa
             let statusText = "";
             let badgeColorClass = ""; 
 
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 statusText = "DETECTED";
                 badgeColorClass = "detected-warn"; 
             } else {
+                // Jika tidak terdeteksi, teks tetap UNDETECTED meskipun kartu merah
                 statusText = "UNDETECTED";
                 badgeColorClass = "working"; 
             }
