@@ -12,29 +12,19 @@
         <header>
             <div class="title-row">
                 <h1>Exploit Status</h1>
-                <div class="live">
-                    <span class="dot"></span> LIVE
-                </div>
+                <div class="live"><span class="dot"></span> LIVE</div>
             </div>
-
             <p>Real-time exploit availability</p>
-
             <div class="counters">
                 <span>All: <strong id="count-all">0</strong></span>
                 <span>Working: <strong id="count-working">0</strong></span>
                 <span>Patched: <strong id="count-patched">0</strong></span>
             </div>
-
-            <input type="text"
-                   id="search"
-                   placeholder="Search exploit..."
-                   autocomplete="off" />
-
+            <input type="text" id="search" placeholder="Search exploit..." autocomplete="off" />
             <div class="filters">
                 <button data-filter="all" class="active">All</button>
                 <button data-filter="working">Working</button>
                 <button data-filter="patched">Patched</button>
-
                 <select id="type-filter" class="type-select">
                     <option value="all">All Types</option>
                     <option value="wexecutor">Internal</option>
@@ -43,24 +33,19 @@
                 </select>
             </div>
         </header>
-
         <section id="exploit-list" class="grid"></section>
     </div>
 
     <div id="exploit-modal" class="modal hidden">
         <div class="modal-content">
             <button id="close-modal">✕</button>
-
             <div class="modal-header">
-                <img id="modal-logo" src="https://via.placeholder.com/60" alt="Logo">
-                <div>
-                    <h2 id="modal-title">Exploit Name</h2>
-                </div>
+                <img id="modal-logo" src="" alt="Logo" style="width: 50px; height: 50px; border-radius: 10px; object-fit: cover;">
+                <h2 id="modal-title" style="margin: 0; font-size: 1.2rem;"></h2>
             </div>
+            <p id="modal-description" style="color: #9ca3af; font-size: 0.8rem; margin: 15px 0;"></p>
 
-            <p id="modal-description"></p>
-
-            <div id="modal-warning-text" class="warning-box"></div>
+            <div id="modal-warning-text"></div>
 
             <div class="stats-row">
                 <div id="modal-unc" class="stat-badge"></div>
@@ -75,45 +60,6 @@
             </div>
         </div>
     </div>
-
-    <footer>
-        Powered by weao.xyz • Deployed on Vercel
-    </footer>
-
-    <style>
-        .type-select {
-            padding: 8px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #e5e7eb;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            outline: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-            .type-select option {
-                background: #0f172a;
-                color: white;
-            }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        #modal-logo {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            object-fit: cover;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-    </style>
 
     <script src="main.js" defer></script>
 </body>
