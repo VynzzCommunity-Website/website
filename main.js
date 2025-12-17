@@ -29,11 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (ex.updateStatus) {
                 statusText = "PATCHED";
                 statusClass = "patched";
-            } else if (ex.clientmods) { // JIKA clientmods true, gunakan warna UNGU
-                statusText = "WORKING (CLIENT MODS)";
-                statusClass = "bypassed"; 
-            } else if (ex.bypassed) {
-                statusText = "WORKING (BYPASSED)";
+            } else if (ex.clientmods) {
+                statusText = "WORKING";
                 statusClass = "bypassed";
             } else if (ex.detected) {
                 statusClass = "detected-warn";
