@@ -14,19 +14,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) return;
         list.innerHTML = "";
         
-        // Klasifikasikan data
-        const categories = [
-            { title: "INTERNAL EXECUTORS", key: "wexecutor" },
-            { title: "EXTERNAL EXECUTORS", key: "wexternal" },
-            { title: "MACOS EXECUTORS", key: "mexecutor" }
-        ];
+        
+        const windows = data.filter(ex => ex.extype === "wexecutor");
+        const androids = data.filter(ex => ex.extype === "aexecutor");
+        const ios = data.filter(ex => ex.extype === "iexecutor");
+        const macos = data.filter(ex => ex.extype === "mexecutor");
+        const externals = data.filter(ex => ex.extype === "wexternal");
 
         const createCard = (ex) => {
             const card = document.createElement("div");
-            card.className = ex.updateStatus ? "card status-working" : "card status-patched";
+            
+            if (ex.updateStatus === true) {
+                card.className = "card status-working"; 
+            } else {
+                card.className = "card status-patched"; 
+            }
 
-            let statusText = "UNDETECTED";
-            let badgeColorClass = "working"; 
+            let statusText = "";
+            let badgeColorClass = ""; 
 
             if (ex.clientmods === true) {
                 statusText = "BYPASSED";
@@ -37,13 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (ex.clientmods === false) {
                 statusText = "DETECTED";
                 badgeColorClass = "detected-warn"; 
+            } else {
+                statusText = "UNDETECTED";
+                badgeColorClass = "working"; 
             }
 
             card.innerHTML = `
-                <div>
-                    <h2 style="margin:0; font-size:1.1rem;">${ex.title}</h2>
-                    <p style="color:#9ca3af; font-size:0.8rem; margin: 5px 0 0 0;">Platform: ${ex.platform}</p>
-                </div>
+                <h2>${ex.title}</h2>
+                <p>Platform: ${ex.platform}</p>
                 <span class="badge ${badgeColorClass}">${statusText}</span>
             `;
             
@@ -51,21 +57,26 @@ document.addEventListener("DOMContentLoaded", () => {
             return card;
         };
 
-        // Render per kategori secara berurutan
-        categories.forEach(cat => {
-            const filteredItems = data.filter(ex => ex.extype === cat.key);
-            if (filteredItems.length > 0) {
-                const header = document.createElement("div");
-                header.className = "group-header";
-                header.innerHTML = `<span>${cat.title}</span>`;
-                list.appendChild(header);
-
-                const grid = document.createElement("div");
-                grid.className = "grid";
-                filteredItems.forEach(item => grid.appendChild(createCard(item)));
-                list.appendChild(grid);
+        const addGroup = (title, items) => {
+            if (items.length > 0) {
+                const h = document.createElement("div");
+                h.className = "group-header";
+                h.innerHTML = `<span>${title}</span>`;
+                list.appendChild(h);
+                
+                const gridWrapper = document.createElement("div");
+                gridWrapper.className = "grid";
+                
+                items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
+                list.appendChild(gridWrapper);
             }
-        });
+        };
+
+        addGroup("WINDOWS EXECUTORS", windows);
+        addGroup("ANDROID EXECUTORS", androids);
+        addGroup("iOS EXECUTORS", ios);
+        addGroup("MACOS EXECUTORS", macos);
+        addGroup("EXTERNAL EXECUTORS", externals);
     }
 
     function openModal(id) {
@@ -78,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
+        
         let customMsg = "";
         let msgColor = "";
 
@@ -91,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             customMsg = "This Exploit is reported as undetected";
             msgColor = "blue-hologram";
         } else {
-            customMsg = "Status Unknown / Patched";
+            customMsg = "Status Unknown";
             msgColor = "red";
         }
 
@@ -105,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="info-item"><label>Type</label><span>${displayType}</span></div>
             <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
         `;
         
         document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
@@ -140,19 +153,23 @@ document.addEventListener("DOMContentLoaded", () => {
             if(cPatch) cPatch.textContent = exploits.filter(e => e.updateStatus === false).length;
             
             applyFilters();
-        } catch (e) { console.error("Error loading data:", e); }
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Failed to load exploits. Please try again later.</p>';
+        }
     }
 
     searchInput.addEventListener("input", applyFilters);
     if(typeFilter) typeFilter.addEventListener("change", applyFilters);
-    
     filterButtons.forEach(btn => btn.onclick = () => {
         document.querySelector(".filters .active")?.classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
-
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    };
     load();
 });
