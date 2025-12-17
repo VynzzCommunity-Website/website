@@ -18,53 +18,45 @@ document.addEventListener("DOMContentLoaded", () => {
         const externals = data.filter(ex => ex.extype === "wexternal");
         const macos = data.filter(ex => ex.extype === "mexecutor");
 
-const createCard = (ex) => {
-    const card = document.createElement("div");
-    
-    // ============================================================
-    // LOGIKA 1: WARNA KOTAK (HANYA DARI UPDATESTATUS)
-    // ============================================================
-    if (ex.updateStatus === true) {
-        card.className = "card status-working"; // Box Hijau
-    } else {
-        card.className = "card status-patched"; // Box Merah
-    }
+        const createCard = (ex) => {
+            const card = document.createElement("div");
+            
+            // --- 1. WARNA BACKGROUND (Hanya updateStatus) ---
+            if (ex.updateStatus === true) {
+                card.className = "card status-working"; 
+            } else {
+                card.className = "card status-patched"; 
+            }
 
-    // ============================================================
-    // LOGIKA 2: TEKS BADGE (DETECTED & CLIENTMODS)
-    // Prioritas: clientmods true akan muncul sebagai BYPASSED
-    // ============================================================
-    let statusText = "";
-    let badgeColorClass = ""; 
+            // --- 2. TEKS BADGE (URUTAN PRIORITAS BARU) ---
+            let statusText = "";
+            let badgeColorClass = ""; 
 
-    if (ex.clientmods === true) {
-        // Jika clientmods true, teks selalu BYPASSED (Ungu)
-        statusText = "BYPASSED";
-        badgeColorClass = "bypassed"; 
-    } else if (ex.detected === true) {
-        // Jika clientmods bukan true tapi detected true, teks PATCHED (Merah)
-        statusText = "PATCHED";
-        badgeColorClass = "patched"; 
-    } else if (ex.clientmods === false) {
-        // Jika clientmods false, teks DETECTED (Oranye)
-        statusText = "DETECTED";
-        badgeColorClass = "detected-warn"; 
-    } else {
-        // Jika semua di atas tidak terpenuhi, teks UNDETECTED (Hijau)
-        statusText = "UNDETECTED";
-        badgeColorClass = "working"; 
-    }
+            if (ex.clientmods === true) {
+                // PRIORITAS UTAMA: Clientmods
+                statusText = "BYPASSED";
+                badgeColorClass = "bypassed"; 
+            } else if (ex.detected === true) {
+                // PRIORITAS KEDUA: Detected
+                statusText = "PATCHED";
+                badgeColorClass = "patched"; 
+            } else if (ex.clientmods === false) {
+                statusText = "DETECTED";
+                badgeColorClass = "detected-warn"; 
+            } else {
+                statusText = "UNDETECTED";
+                badgeColorClass = "working"; 
+            }
 
-    // Memasukkan konten ke dalam Card
-    card.innerHTML = `
-        <h2>${ex.title}</h2>
-        <p>Platform: ${ex.platform}</p>
-        <span class="badge ${badgeColorClass}">${statusText}</span>
-    `;
-    
-    card.onclick = () => openModal(ex._id);
-    return card;
-};
+            card.innerHTML = `
+                <h2>${ex.title}</h2>
+                <p>Platform: ${ex.platform}</p>
+                <span class="badge ${badgeColorClass}">${statusText}</span>
+            `;
+            
+            card.onclick = () => openModal(ex._id);
+            return card;
+        };
 
         const addGroup = (title, items) => {
             if (items.length > 0) {
@@ -72,7 +64,11 @@ const createCard = (ex) => {
                 h.className = "group-header";
                 h.innerHTML = `<span>${title}</span>`;
                 list.appendChild(h);
-                items.forEach(ex => list.appendChild(createCard(ex)));
+                
+                const gridDiv = document.createElement("div");
+                gridDiv.className = "grid";
+                items.forEach(ex => gridDiv.appendChild(createCard(ex)));
+                list.appendChild(gridDiv);
             }
         };
 
@@ -92,14 +88,19 @@ const createCard = (ex) => {
 
         const warnBox = document.getElementById("modal-warning-text");
         
-        // Logika Teks Modal (Murni Deteksi)
+        // --- PERBAIKAN DI SINI: URUTAN PRIORITAS MODAL ---
         let modalTag = "";
-        if (ex.detected === true) modalTag = "PATCHED";
-        else if (ex.clientmods === true) modalTag = "BYPASSED";
-        else if (ex.clientmods === false) modalTag = "DETECTED";
-        else modalTag = "UNDETECTED";
+        if (ex.clientmods === true) {
+            modalTag = "BYPASSED"; // Sekarang Clientmods dicek paling pertama
+        } else if (ex.detected === true) {
+            modalTag = "PATCHED";
+        } else if (ex.clientmods === false) {
+            modalTag = "DETECTED";
+        } else {
+            modalTag = "UNDETECTED";
+        }
 
-        // Logika Warna Warning Box (Murni UpdateStatus)
+        // Logika Pesan di Warning Box (Tetap melihat updateStatus)
         let warnText = ex.updateStatus === true ? "Exploit is up to date." : "Update required/Patched.";
         let warnColor = ex.updateStatus === true ? "green" : "red";
 
@@ -139,21 +140,31 @@ const createCard = (ex) => {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            document.getElementById("count-all").textContent = exploits.length;
-            document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
-            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
+            
+            const countAll = document.getElementById("count-all");
+            const countWorking = document.getElementById("count-working");
+            const countPatched = document.getElementById("count-patched");
+
+            if(countAll) countAll.textContent = exploits.length;
+            if(countWorking) countWorking.textContent = exploits.filter(e => e.updateStatus === true).length;
+            if(countPatched) countPatched.textContent = exploits.filter(e => e.updateStatus === false).length;
+            
             applyFilters();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error load:", e); }
     }
 
     searchInput.addEventListener("input", applyFilters);
-    typeFilter.addEventListener("change", applyFilters);
+    if(typeFilter) typeFilter.addEventListener("change", applyFilters);
+    
     filterButtons.forEach(btn => btn.onclick = () => {
         document.querySelector(".filters .active")?.classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
-    document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+
+    const closeBtn = document.getElementById("close-modal");
+    if(closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
+
     load();
 });
