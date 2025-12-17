@@ -82,11 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
             warnText = "This Exploit is currently patched due to a Roblox update.";
             warnColor = "red";
             modalTag = "🔴 PATCHED";
-        } else if (ex.clientmods) { // LOGIKA BARU: Jika clientmods true
-            warnText = "This Exploit is using Client Modification methods, which may carry a higher risk of bans.";
-            warnColor = "purple";
-            modalTag = "🟣 CLIENT MODS";
-        } else if (ex.bypassed) {
+        } else if (ex.clientmods) {
             warnText = "This Exploit Bypassed Client Modification bans but potentially could cause bans in banwaves";
             warnColor = "purple";
             modalTag = "🟣 BYPASSED";
