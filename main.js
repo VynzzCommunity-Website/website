@@ -21,31 +21,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // --- 1. LOGIKA BACKGROUND CARD (MURNI UPDATESTATUS) ---
+            // --- 1. LOGIKA WARNA KARTU (MURNI UPDATESTATUS) ---
             if (ex.updateStatus === true) {
-                card.className = "card status-working"; // Warna Hijau via CSS
+                card.className = "card status-working"; 
             } else if (ex.updateStatus === false) {
-                card.className = "card status-patched"; // Warna Merah via CSS
+                card.className = "card status-patched"; 
             } else {
                 card.className = "card";
             }
 
             // --- 2. LOGIKA TEKS & WARNA BADGE (MURNI DETECTED/CLIENTMODS) ---
+            // UpdateStatus TIDAK BOLEH masuk ke sini agar teks tidak berubah paksa
             let statusText = "";
             let badgeColorClass = ""; 
 
             if (ex.detected === true) {
                 statusText = "PATCHED";
-                badgeColorClass = "patched"; // Merah
+                badgeColorClass = "patched"; 
             } else if (ex.clientmods === true) {
                 statusText = "BYPASSED";
-                badgeColorClass = "bypassed"; // Ungu
+                badgeColorClass = "bypassed"; 
             } else if (ex.clientmods === false) {
                 statusText = "DETECTED";
-                badgeColorClass = "detected-warn"; // Oranye
+                badgeColorClass = "detected-warn"; 
             } else {
                 statusText = "UNDETECTED";
-                badgeColorClass = "working"; // Hijau
+                badgeColorClass = "working"; 
             }
 
             card.innerHTML = `
@@ -83,29 +84,19 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
-        let warnText = "", warnColor = "", modalTag = "";
+        
+        // Logika Teks Modal (Murni Deteksi)
+        let modalTag = "";
+        if (ex.detected === true) modalTag = "PATCHED";
+        else if (ex.clientmods === true) modalTag = "BYPASSED";
+        else if (ex.clientmods === false) modalTag = "DETECTED";
+        else modalTag = "UNDETECTED";
 
-        // Logika Teks Modal (Hanya Teks)
-        if (ex.detected === true) {
-            modalTag = "PATCHED";
-        } else if (ex.clientmods === true) {
-            modalTag = "BYPASSED";
-        } else if (ex.clientmods === false) {
-            modalTag = "DETECTED";
-        } else {
-            modalTag = "UNDETECTED";
-        }
+        // Logika Warna Warning Box (Murni UpdateStatus)
+        let warnText = ex.updateStatus === true ? "Exploit is up to date." : "Update required/Patched.";
+        let warnColor = ex.updateStatus === true ? "green" : "red";
 
-        // Warna Box Modal mengikuti updateStatus (Hijau jika true, Merah jika false)
-        if (ex.updateStatus === true) {
-            warnText = `Status: ${modalTag} - Exploit is up to date.`;
-            warnColor = "green";
-        } else {
-            warnText = `Status: ${modalTag} - Update required/Patched.`;
-            warnColor = "red";
-        }
-
-        warnBox.textContent = warnText;
+        warnBox.textContent = `Status: ${modalTag} - ${warnText}`;
         warnBox.className = `warning-box ${warnColor}`;
 
         const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
@@ -130,10 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
             const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
             let matchStatus = true;
-            
-		 matchStatus = (ex.updateStatus === true);
- 		matchStatus = (ex.updateStatus === false);
-            
+            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
+            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
             return matchSearch && matchType && matchStatus;
         });
         render(f);
@@ -143,11 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            
             document.getElementById("count-all").textContent = exploits.length;
             document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
             document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
-            
             applyFilters();
         } catch (e) { console.error(e); }
     }
