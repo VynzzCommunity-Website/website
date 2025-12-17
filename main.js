@@ -17,36 +17,45 @@ document.addEventListener("DOMContentLoaded", () => {
         const internals = data.filter(ex => ex.extype === "wexecutor");
         const externals = data.filter(ex => ex.extype === "wexternal");
         const macos = data.filter(ex => ex.extype === "mexecutor");
+
 const createCard = (ex) => {
     const card = document.createElement("div");
     
-    // --- JALUR 1: WARNA KOTAK (Hanya melihat updateStatus) ---
+    // ============================================================
+    // LOGIKA 1: WARNA KOTAK (HANYA DARI UPDATESTATUS)
+    // ============================================================
     if (ex.updateStatus === true) {
-        card.className = "card status-working"; // Warna Hijau
+        card.className = "card status-working"; // Box Hijau
     } else {
-        card.className = "card status-patched"; // Warna Merah
+        card.className = "card status-patched"; // Box Merah
     }
 
-    // --- JALUR 2: TEKS BADGE (Hanya melihat detected & clientmods) ---
+    // ============================================================
+    // LOGIKA 2: TEKS BADGE (DETECTED & CLIENTMODS)
+    // Prioritas: clientmods true akan muncul sebagai BYPASSED
+    // ============================================================
     let statusText = "";
     let badgeColorClass = ""; 
 
-    if (ex.detected === true) {
-        statusText = "PATCHED";
-        badgeColorClass = "patched"; 
-    } else if (ex.clientmods === true) {
+    if (ex.clientmods === true) {
+        // Jika clientmods true, teks selalu BYPASSED (Ungu)
         statusText = "BYPASSED";
         badgeColorClass = "bypassed"; 
+    } else if (ex.detected === true) {
+        // Jika clientmods bukan true tapi detected true, teks PATCHED (Merah)
+        statusText = "PATCHED";
+        badgeColorClass = "patched"; 
     } else if (ex.clientmods === false) {
+        // Jika clientmods false, teks DETECTED (Oranye)
         statusText = "DETECTED";
         badgeColorClass = "detected-warn"; 
     } else {
-        // Default jika semua false atau null
+        // Jika semua di atas tidak terpenuhi, teks UNDETECTED (Hijau)
         statusText = "UNDETECTED";
         badgeColorClass = "working"; 
     }
 
-    // Render ke HTML
+    // Memasukkan konten ke dalam Card
     card.innerHTML = `
         <h2>${ex.title}</h2>
         <p>Platform: ${ex.platform}</p>
