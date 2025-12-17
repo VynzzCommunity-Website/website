@@ -22,11 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const card = document.createElement("div");
             
             // 1. WARNA KOTAK (Hanya dari updateStatus)
-            if (ex.updateStatus === true) {
-                card.className = "card status-working"; 
-            } else {
-                card.className = "card status-patched"; 
-            }
+            card.className = ex.updateStatus ? "card status-working" : "card status-patched";
 
             // 2. TEKS BADGE (Prioritas: Bypassed > Patched > Detected)
             let statusText = "";
@@ -64,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 h.innerHTML = `<span>${title}</span>`;
                 list.appendChild(h);
                 
-                // PEMBUNGKUS GRID AGAR MENYAMPING (Sesuai CSS Grid)
+                // PEMBUNGKUS GRID (CSS grid-template-columns: repeat(3, 1fr) akan bekerja di sini)
                 const gridWrapper = document.createElement("div");
                 gridWrapper.className = "grid"; 
                 
@@ -89,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const warnBox = document.getElementById("modal-warning-text");
         
-        // --- LOGIKA TEKS DINAMIS SESUAI INSTRUKSI ---
         let customMsg = "";
         let msgColor = "";
 
@@ -166,6 +161,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    
     load();
 });

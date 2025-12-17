@@ -15,7 +15,7 @@ body {
 /* CONTAINER */
 .container {
     padding: 20px 16px;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: auto;
 }
 
@@ -95,7 +95,7 @@ header p {
     box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
 }
 
-/* GRID & CATEGORY HEADERS (DECLUSION STYLE) */
+/* GRID & CATEGORY HEADERS */
 .group-header {
     width: 100%;
     display: flex;
@@ -115,16 +115,26 @@ header p {
     border-left: 4px solid #6366f1;
 }
 
-/* PEMBUNGKUS GRID AGAR MENYAMPING */
+/* FIX 3x1 GRID */
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* MEMAKSA 3 KOLOM SEJAJAR */
+    grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
     width: 100%;
     margin-bottom: 40px;
 }
 
-/* --- STYLE KARTU MEWAH (PREMIUM GLASS) --- */
+/* RESPONSIVE: Biar gak hancur di layar kecil */
+@media (max-width: 1024px) {
+    .grid { grid-template-columns: repeat(2, 1fr); } /* 2 kolom di Tablet */
+}
+
+@media (max-width: 650px) {
+    .grid { grid-template-columns: 1fr; } /* 1 kolom di HP */
+}
+
+/* --- STYLE KARTU MEWAH --- */
 .card {
     position: relative;
     background: rgba(255, 255, 255, 0.02);
@@ -145,26 +155,18 @@ header p {
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Warna Kartu berdasarkan updateStatus */
 .card.status-working {
     background: linear-gradient(145deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.02));
     border-color: rgba(34, 197, 94, 0.25);
 }
-.card.status-working:hover {
-    border-color: #4ade80;
-    box-shadow: 0 10px 30px -10px rgba(34, 197, 94, 0.4);
-}
+.card.status-working:hover { border-color: #4ade80; }
 
 .card.status-patched {
     background: linear-gradient(145deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02));
     border-color: rgba(239, 68, 68, 0.25);
 }
-.card.status-patched:hover {
-    border-color: #f87171;
-    box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.4);
-}
+.card.status-patched:hover { border-color: #f87171; }
 
-/* BADGES (Teks Status) */
 .badge {
     display: inline-block;
     font-size: 0.7rem;
@@ -172,115 +174,45 @@ header p {
     border-radius: 999px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
     margin-top: 15px;
     width: fit-content;
 }
 
-/* Status Colors */
 .working { background: rgba(34, 197, 94, 0.15) !important; color: #4ade80 !important; border: 1px solid rgba(34, 197, 94, 0.2); }
 .detected-warn { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.2); }
 .bypassed { background: rgba(168, 85, 247, 0.15) !important; color: #a855f7 !important; border: 1px solid rgba(168, 85, 247, 0.2); }
 .patched { background: rgba(239, 68, 68, 0.15) !important; color: #f87171 !important; border: 1px solid rgba(239, 68, 68, 0.2); }
 
-/* MODAL */
+/* MODAL & WARNING BOX */
 .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(12px);
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; backdrop-filter: blur(12px);
 }
-
 .modal.hidden { display: none !important; }
-
 .modal-content {
-    background: #020617;
-    border-radius: 28px;
-    padding: 32px;
-    width: 92%;
-    max-width: 500px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #020617; border-radius: 28px; padding: 32px;
+    width: 92%; max-width: 500px; border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-/* WARNING BOX (LOGIKA DINAMIS) */
 .warning-box {
-    padding: 16px;
-    border-radius: 14px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin: 20px 0;
-    text-align: center;
-    line-height: 1.4;
-    border: 1px solid transparent;
+    padding: 16px; border-radius: 14px; font-size: 0.85rem; font-weight: 700;
+    margin: 20px 0; text-align: center; border: 1px solid transparent;
 }
-
 .warning-box.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
 .warning-box.orange { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
-.warning-box.blue-hologram { 
-    background: rgba(56, 189, 248, 0.1); 
-    color: #38bdf8; 
-    border-color: #38bdf8; 
-    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); 
-}
+.warning-box.blue-hologram { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: #38bdf8; text-shadow: 0 0 8px #38bdf8; }
 .warning-box.red { background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(239, 68, 68, 0.2); }
-
-/* STATS & INFO */
-.stat-badge {
-    flex: 1;
-    text-align: center;
-    padding: 16px;
-    border-radius: 16px;
-    background: rgba(56, 189, 248, 0.05);
-    border: 1px solid rgba(56, 189, 248, 0.15);
-}
 
 .stat-badge .val { display: block; font-size: 1.5rem; font-weight: 800; color: #38bdf8; }
 .stat-badge .lbl { font-size: 0.65rem; color: #7dd3fc; font-weight: 800; text-transform: uppercase; }
 
-.modal-grid-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
-}
+.modal-grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.info-item { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.05); }
 
-.info-item {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* LINKS */
-.btn-link {
-    flex: 1;
-    text-align: center;
-    padding: 15px;
-    border-radius: 14px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
+.btn-link { flex: 1; text-align: center; padding: 15px; border-radius: 14px; font-size: 0.9rem; font-weight: 700; text-decoration: none; }
 #modal-website { background: #38bdf8; color: #020617; }
 #modal-discord { background: #5865F2; color: #fff; }
 
-#close-modal {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    color: #9ca3af;
-    cursor: pointer;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-}
+#close-modal { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.05); border: none; color: #9ca3af; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
