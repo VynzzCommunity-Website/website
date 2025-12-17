@@ -21,20 +21,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // --- BAGIAN PERUBAHAN WARNA BACKGROUND KARTU ---
-            // Menambahkan class ke element 'card' berdasarkan updateStatus
+            // --- WARNA BACKGROUND KARTU (MURNI UPDATESTATUS) ---
             if (ex.updateStatus === true) {
-                card.className = "card status-working"; // Untuk Background Hijau
+                card.className = "card status-working"; 
             } else if (ex.updateStatus === false) {
-                card.className = "card status-patched"; // Untuk Background Merah
+                card.className = "card status-patched";
             } else {
-                card.className = "card"; // Warna Default jika tidak ada status
+                card.className = "card";
             }
-            
-            let statusText = "";
-            let badgeClass = ""; // Ini untuk warna badge kecil (jika masih diperlukan)
 
-            // 1. PENENTUAN TEKS (Tetap sama seperti logika awal Anda)
+            // --- TEKS BADGE (MURNI DETECTED/CLIENTMODS) ---
+            let statusText = "";
             if (ex.detected === true) {
                 statusText = "PATCHED";
             } else if (ex.clientmods === true) {
@@ -45,13 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 statusText = "UNDETECTED";
             }
 
-            // 2. PENENTUAN CLASS BADGE (Opsional, agar badge tetap punya warna kontras)
-            badgeClass = ex.updateStatus === true ? "working" : "patched";
-
+            // Render HTML (Badge sekarang menggunakan class netral agar tidak bentrok warna)
             card.innerHTML = `
                 <h2>${ex.title}</h2>
                 <p>Platform: ${ex.platform}</p>
-                <span class="badge ${badgeClass}">${statusText}</span>
+                <span class="badge">${statusText}</span>
             `;
             
             card.onclick = () => openModal(ex._id);
@@ -85,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const warnBox = document.getElementById("modal-warning-text");
         let warnText = "", warnColor = "", modalTag = "";
 
+        // Logika Teks Modal
         if (ex.detected === true) {
             modalTag = "PATCHED";
         } else if (ex.clientmods === true) {
@@ -95,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
             modalTag = "UNDETECTED";
         }
 
+        // Warna Box Modal mengikuti updateStatus
         if (ex.updateStatus === true) {
             warnText = `Status: ${modalTag} - Exploit is up to date.`;
             warnColor = "green";
