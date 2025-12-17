@@ -19,6 +19,13 @@
 
             <p>Real-time exploit availability</p>
 
+            <!-- COUNTERS -->
+            <div class="counters">
+                <span>All: <strong id="count-all">0</strong></span>
+                <span>Working: <strong id="count-working">0</strong></span>
+                <span>Patched: <strong id="count-patched">0</strong></span>
+            </div>
+
             <input type="text"
                    id="search"
                    placeholder="Search exploit..."
@@ -35,9 +42,10 @@
     </div>
 
     <footer>
-        Powered by weao.xyz � Deployed on Vercel
+        Powered by weao.xyz • Deployed on Vercel
     </footer>
 
-    <script src="main.js"></script>
+    <!-- WAJIB DEFER -->
+    <script src="main.js" defer></script>
 </body>
 </html>
