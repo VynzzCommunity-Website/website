@@ -1,6 +1,7 @@
 const API_URL = "/api/exploits";
 
 document.addEventListener("DOMContentLoaded", () => {
+
     const list = document.getElementById("exploit-list");
     const searchInput = document.getElementById("search");
     const filterButtons = document.querySelectorAll(".filters button");
@@ -9,10 +10,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const countWorking = document.getElementById("count-working");
     const countPatched = document.getElementById("count-patched");
 
+    // MODAL ELEMENTS
+    const modal = document.getElementById("exploit-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalDescription = document.getElementById("modal-description");
+    const modalUNC = document.getElementById("modal-unc");
+    const modalSUNC = document.getElementById("modal-sunc");
+    const modalWebsite = document.getElementById("modal-website");
+    const modalDiscord = document.getElementById("modal-discord");
+    const modalLogo = document.getElementById("modal-logo");
+    const closeModal = document.getElementById("close-modal");
+
     let exploits = [];
     let currentFilter = "all";
 
-    // detected: true = PATCHED, false = WORKING
     function getStatusInfo(detected) {
         return detected
             ? { text: "PATCHED", class: "patched" }
@@ -20,34 +31,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getPlatformIcon(platform) {
-        switch (platform) {
-            case "Windows":
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#00ADEF" d="M1 3.75l9-1v8.25h-9V3.75zm10 0l13-1v8.25h-13V3.75zm-10 9.5l9-1v8.25h-9v-7.25zm10 0l13-1v8.25h-13v-7.25z"/>
-                </svg>`;
-            case "iOS":
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#000" d="M16.365 1.43c-.703.831-1.453 1.714-1.21 2.73.26 1.092 1.505 1.754 2.352 1.739.03-.92-.595-1.857-1.142-2.47z"/>
-                </svg>`;
-            case "Android":
-                return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                    <path fill="#3DDC84" d="M5 9h14v10H5z"/>
-                </svg>`;
-            default:
-                return "";
-        }
+        if (platform === "Windows") return "🪟";
+        if (platform === "Android") return "🤖";
+        if (platform === "iOS") return "🍎";
+        return "";
     }
 
     function updateCounters() {
-        if (!countAll || !countWorking || !countPatched) return;
-
+        if (!countAll) return;
         countAll.textContent = exploits.length;
-        countWorking.textContent = exploits.filter(e => e.detected === false).length;
-        countPatched.textContent = exploits.filter(e => e.detected === true).length;
+        countWorking.textContent = exploits.filter(e => !e.detected).length;
+        countPatched.textContent = exploits.filter(e => e.detected).length;
     }
 
+    // ⭐ MODAL (DETAIL DARI API)
+    async function openModal(exploitId) {
+        try {
+            modalTitle.textContent = "Loading...";
+            modalDescription.textContent = "";
+            modal.classList.remove("hidden");
+
+            const res = await fetch(`${API_URL}/${exploitId}`);
+            if (!res.ok) throw new Error();
+
+            const ex = await res.json();
+
+            modalTitle.textContent = ex.title || "Unknown";
+            modalDescription.textContent =
+                ex.slug?.fullDescription || "No description available.";
+
+            modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`;
+            modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`;
+
+            modalWebsite.href = ex.websitelink || "#";
+            modalDiscord.href = ex.discordlink || "#";
+
+            modalLogo.src = ex.slug?.logo || "";
+            modalLogo.style.display = modalLogo.src ? "block" : "none";
+
+        } catch (err) {
+            modalTitle.textContent = "Failed to load exploit";
+            modalDescription.textContent = "";
+        }
+    }
+
+    closeModal.onclick = () => modal.classList.add("hidden");
+    modal.onclick = e => e.target === modal && modal.classList.add("hidden");
+
+    // ⭐ RENDER LIST
     function render(data) {
-        if (!list) return;
         list.innerHTML = "";
 
         if (!data || data.length === 0) {
@@ -57,15 +89,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         data.forEach(ex => {
             const status = getStatusInfo(ex.detected);
-            const icon = getPlatformIcon(ex.platform);
 
             const card = document.createElement("div");
             card.className = "card";
+            card.style.cursor = "pointer";
+
             card.innerHTML = `
-                <h2>${ex.title || "Unknown"}</h2>
-                <p>Platform: ${ex.platform || "N/A"} ${icon}</p>
-                <span class="badge ${status.class}">${status.text}</span>
+                <h2>${ex.title}</h2>
+                <p>Platform: ${ex.platform} ${getPlatformIcon(ex.platform)}</p>
+                <span class="badge ${status.class}">
+                    ${status.text}
+                </span>
             `;
+
+            // ⬇️ KLIK → FETCH DETAIL
+            card.onclick = () => openModal(ex._id);
             list.appendChild(card);
         });
     }
@@ -74,9 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
         let filtered = [...exploits];
 
         if (currentFilter === "working") {
-            filtered = filtered.filter(e => e.detected === false);
+            filtered = filtered.filter(e => !e.detected);
         } else if (currentFilter === "patched") {
-            filtered = filtered.filter(e => e.detected === true);
+            filtered = filtered.filter(e => e.detected);
         }
 
         const q = searchInput?.value.toLowerCase();
@@ -89,56 +127,27 @@ document.addEventListener("DOMContentLoaded", () => {
         render(filtered);
     }
 
-    // 🔥 FIX UTAMA ADA DI SINI
     async function loadExploits() {
         try {
             const res = await fetch(API_URL);
+            if (!res.ok) throw new Error();
 
-            if (!res.ok) {
-                console.warn("API error:", res.status);
-                showFallback();
-                return;
-            }
-
-            const data = await res.json();
-            if (!Array.isArray(data)) {
-                showFallback();
-                return;
-            }
-
-            exploits = data;
+            exploits = await res.json();
             updateCounters();
             applyFilters();
 
-        } catch (err) {
-            console.warn("Fetch gagal:", err);
-            showFallback();
+        } catch {
+            list.innerHTML = "<p>Failed to load data.</p>";
         }
     }
 
-    function showFallback() {
-        if (list) {
-            list.innerHTML = `
-                <div class="card">
-                    <h2>Server Error</h2>
-                    <p>API tidak tersedia saat ini</p>
-                    <span class="badge patched">OFFLINE</span>
-                </div>
-            `;
-        }
-        if (countAll) countAll.textContent = "0";
-        if (countWorking) countWorking.textContent = "0";
-        if (countPatched) countPatched.textContent = "0";
-    }
-
-    // Event listeners
     filterButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.onclick = () => {
             document.querySelector(".filters .active")?.classList.remove("active");
             btn.classList.add("active");
             currentFilter = btn.dataset.filter;
             applyFilters();
-        });
+        };
     });
 
     searchInput?.addEventListener("input", applyFilters);
