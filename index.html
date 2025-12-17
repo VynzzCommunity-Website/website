@@ -19,7 +19,6 @@
 
             <p>Real-time exploit availability</p>
 
-            <!-- COUNTERS -->
             <div class="counters">
                 <span>All: <strong id="count-all">0</strong></span>
                 <span>Working: <strong id="count-working">0</strong></span>
@@ -40,23 +39,26 @@
 
         <!-- LIST EXPLOIT -->
         <section id="exploit-list" class="grid"></section>
+    </div>
 
-        <!-- DETAIL EXPLOIT (MUNCUL SAAT DI KLIK) -->
-        <section id="exploit-detail" style="display:none; margin-top:20px;">
-            <h2 id="detail-title"></h2>
-            <p id="detail-desc"></p>
+    <!-- ✅ MODAL DETAIL (WAJIB ADA) -->
+    <div id="exploit-modal" class="modal hidden">
+        <div class="modal-content">
+            <button id="close-modal">✕</button>
 
-            <ul>
-                <li>SUNC: <strong><span id="detail-sunc"></span>%</strong></li>
-                <li>UNC: <strong><span id="detail-unc"></span>%</strong></li>
-                <li>Status: <strong><span id="detail-free"></span></strong></li>
-            </ul>
+            <img id="modal-logo" alt="Logo" />
+
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+
+            <p id="modal-unc"></p>
+            <p id="modal-sunc"></p>
 
             <p>
-                🌐 <a id="detail-website" target="_blank">Website</a><br>
-                💬 <a id="detail-discord" target="_blank">Discord</a>
+                🌐 <a id="modal-website" target="_blank">Website</a><br>
+                💬 <a id="modal-discord" target="_blank">Discord</a>
             </p>
-        </section>
+        </div>
     </div>
 
     <footer>
@@ -64,6 +66,7 @@
     </footer>
 
     <!-- WAJIB DEFER -->
-    <script src="main.js" defer></script>
+    <script src="main.js" defer>
+</script>
 </body>
 </html>
