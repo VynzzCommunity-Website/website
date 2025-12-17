@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exploit Status</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="title-row">
+                <h1>Exploit Status</h1>
+                <div class="live">
+                    <span class="dot"></span> LIVE
+                </div>
+            </div>
+
+            <p>Real-time exploit availability</p>
+
+            <input type="text"
+                   id="search"
+                   placeholder="Search exploit..."
+                   autocomplete="off" />
+
+            <div class="filters">
+                <button data-filter="all" class="active">All</button>
+                <button data-filter="working">Working</button>
+                <button data-filter="patched">Patched</button>
+            </div>
+        </header>
+
+        <section id="exploit-list" class="grid"></section>
+    </div>
+
+    <footer>
+        Powered by weao.xyz • Deployed on Vercel
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
