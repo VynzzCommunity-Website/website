@@ -43,12 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
         countPatched.textContent = exploits.filter(e => e.detected).length;
     }
 
-    // ⭐ FIX: Fungsi ini sekarang mengambil data dari array 'exploits' 
-    // Tidak lagi memanggil API tambahan untuk menghindari 404
+    // ⭐ FUNGSI MODAL DENGAN DETAIL LENGKAP
     function openModal(exploitId) {
         if (!modal) return;
 
-        // Cari data di memori lokal
+        // Cari data di memori lokal berdasarkan ID
         const ex = exploits.find(e => (e._id === exploitId || e.id === exploitId));
 
         if (!ex) {
@@ -56,29 +55,55 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Reset & Tampilkan Modal
+        // Tampilkan Modal
         modal.classList.remove("hidden");
 
-        // Masukkan Data
+        // 1. Masukkan Data Dasar
         if (modalTitle) modalTitle.textContent = ex.title || "Unknown";
         if (modalDescription) {
             modalDescription.textContent = ex.slug?.fullDescription || ex.description || "No description available.";
         }
 
-        if (modalUNC) modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`;
-        if (modalSUNC) modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`;
-
-        if (modalWebsite) modalWebsite.href = ex.websitelink || "#";
-        if (modalDiscord) modalDiscord.href = ex.discordlink || "#";
-
+        // 2. Masukkan Logo
         if (modalLogo) {
             const logoSrc = ex.slug?.logo || ex.logo || "";
             modalLogo.src = logoSrc;
             modalLogo.style.display = logoSrc ? "block" : "none";
         }
+
+        // 3. Masukkan UNC & SUNC (Stats Row)
+        if (modalUNC) {
+            modalUNC.innerHTML = `<span class="val">${ex.uncPercentage ?? 0}%</span><span class="lbl">UNC RATE</span>`;
+        }
+        if (modalSUNC) {
+            modalSUNC.innerHTML = `<span class="val">${ex.suncPercentage ?? 0}%</span><span class="lbl">SUNC RATE</span>`;
+        }
+
+        // 4. Masukkan Info Tambahan (Grid) ke elemen baru "modal-extra-info"
+        const extraInfoContainer = document.getElementById("modal-extra-info");
+        if (extraInfoContainer) {
+            extraInfoContainer.innerHTML = `
+                <div class="info-item"><label>Price</label><span>${ex.free ? 'FREE 🔓' : 'PAID 💰'}</span></div>
+                <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+                <div class="info-item"><label>Decompiler</label><span>${ex.decompiler ? '✅' : '❌'}</span></div>
+                <div class="info-item"><label>Multi-Inject</label><span>${ex.multiInject ? '✅' : '❌'}</span></div>
+                <div class="info-item"><label>Platform</label><span>${ex.platform}</span></div>
+                <div class="info-item"><label>Updated</label><span>${ex.updatedDate || 'Recently'}</span></div>
+            `;
+        }
+
+        // 5. Link Website & Discord
+        if (modalWebsite) {
+            modalWebsite.href = ex.websitelink || "#";
+            modalWebsite.style.display = ex.websitelink ? "block" : "none";
+        }
+        if (modalDiscord) {
+            modalDiscord.href = ex.discordlink || "#";
+            modalDiscord.style.display = ex.discordlink ? "block" : "none";
+        }
     }
 
-    // ⭐ CLOSE MODAL LOGIC
+    // ⭐ LOGIKA TUTUP MODAL
     if (closeModal) {
         closeModal.onclick = () => modal.classList.add("hidden");
     }
@@ -87,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === modal) modal.classList.add("hidden");
     };
 
-    // ⭐ RENDER LIST
+    // ⭐ RENDER LIST KARTU
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
@@ -111,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </span>
             `;
 
-            // Kirim ID ke fungsi openModal
+            // Klik kartu untuk buka modal
             card.onclick = () => openModal(ex._id || ex.id);
             list.appendChild(card);
         });
@@ -136,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         render(filtered);
     }
 
+    // ⭐ LOAD DATA AWAL
     async function loadExploits() {
         try {
             const res = await fetch(API_URL);
@@ -151,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // EVENT LISTENERS
     filterButtons.forEach(btn => {
         btn.onclick = () => {
             document.querySelector(".filters .active")?.classList.remove("active");

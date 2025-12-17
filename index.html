@@ -42,22 +42,23 @@
     </div>
 
     <!-- ✅ MODAL DETAIL (WAJIB ADA) -->
-    <div id="exploit-modal" class="modal hidden">
-        <div class="modal-content">
-            <button id="close-modal">✕</button>
+    <div class="modal-content">
+        <button id="close-modal">✕</button>
+        <img id="modal-logo" alt="Logo" style="width: 80px; height: 80px; border-radius: 10px;">
 
-            <img id="modal-logo" alt="Logo" />
+        <h2 id="modal-title"></h2>
+        <p id="modal-description"></p>
 
-            <h2 id="modal-title"></h2>
-            <p id="modal-description"></p>
+        <div id="modal-extra-info"></div>
 
-            <p id="modal-unc"></p>
-            <p id="modal-sunc"></p>
+        <div class="stats-row">
+            <span id="modal-unc"></span>
+            <span id="modal-sunc"></span>
+        </div>
 
-            <p>
-                🌐 <a id="modal-website" target="_blank">Website</a><br>
-                💬 <a id="modal-discord" target="_blank">Discord</a>
-            </p>
+        <div class="links-row">
+            <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
+            <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
         </div>
     </div>
 
