@@ -21,32 +21,37 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // --- WARNA BACKGROUND KARTU (MURNI UPDATESTATUS) ---
+            // --- 1. LOGIKA BACKGROUND CARD (MURNI UPDATESTATUS) ---
             if (ex.updateStatus === true) {
-                card.className = "card status-working"; 
+                card.className = "card status-working"; // Warna Hijau via CSS
             } else if (ex.updateStatus === false) {
-                card.className = "card status-patched";
+                card.className = "card status-patched"; // Warna Merah via CSS
             } else {
                 card.className = "card";
             }
 
-            // --- TEKS BADGE (MURNI DETECTED/CLIENTMODS) ---
+            // --- 2. LOGIKA TEKS & WARNA BADGE (MURNI DETECTED/CLIENTMODS) ---
             let statusText = "";
+            let badgeColorClass = ""; 
+
             if (ex.detected === true) {
                 statusText = "PATCHED";
+                badgeColorClass = "patched"; // Merah
             } else if (ex.clientmods === true) {
                 statusText = "BYPASSED";
+                badgeColorClass = "bypassed"; // Ungu
             } else if (ex.clientmods === false) {
                 statusText = "DETECTED";
+                badgeColorClass = "detected-warn"; // Oranye
             } else {
                 statusText = "UNDETECTED";
+                badgeColorClass = "working"; // Hijau
             }
 
-            // Render HTML (Badge sekarang menggunakan class netral agar tidak bentrok warna)
             card.innerHTML = `
                 <h2>${ex.title}</h2>
                 <p>Platform: ${ex.platform}</p>
-                <span class="badge">${statusText}</span>
+                <span class="badge ${badgeColorClass}">${statusText}</span>
             `;
             
             card.onclick = () => openModal(ex._id);
@@ -80,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const warnBox = document.getElementById("modal-warning-text");
         let warnText = "", warnColor = "", modalTag = "";
 
-        // Logika Teks Modal
+        // Logika Teks Modal (Hanya Teks)
         if (ex.detected === true) {
             modalTag = "PATCHED";
         } else if (ex.clientmods === true) {
@@ -91,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
             modalTag = "UNDETECTED";
         }
 
-        // Warna Box Modal mengikuti updateStatus
+        // Warna Box Modal mengikuti updateStatus (Hijau jika true, Merah jika false)
         if (ex.updateStatus === true) {
             warnText = `Status: ${modalTag} - Exploit is up to date.`;
             warnColor = "green";
