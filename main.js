@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const countWorking = document.getElementById("count-working");
     const countPatched = document.getElementById("count-patched");
 
-    // MODAL ELEMENTS
+    // MODAL ELEMENTS (BISA NULL)
     const modal = document.getElementById("exploit-modal");
     const modalTitle = document.getElementById("modal-title");
     const modalDescription = document.getElementById("modal-description");
@@ -46,9 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ⭐ MODAL (DETAIL DARI API)
     async function openModal(exploitId) {
+        if (!modal) return;
+
         try {
-            modalTitle.textContent = "Loading...";
-            modalDescription.textContent = "";
+            modalTitle && (modalTitle.textContent = "Loading...");
+            modalDescription && (modalDescription.textContent = "");
             modal.classList.remove("hidden");
 
             const res = await fetch(`${API_URL}/${exploitId}`);
@@ -56,27 +58,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const ex = await res.json();
 
-            modalTitle.textContent = ex.title || "Unknown";
-            modalDescription.textContent =
-                ex.slug?.fullDescription || "No description available.";
+            modalTitle && (modalTitle.textContent = ex.title || "Unknown");
+            modalDescription && (
+                modalDescription.textContent =
+                    ex.slug?.fullDescription || "No description available."
+            );
 
-            modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`;
-            modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`;
+            modalUNC && (modalUNC.textContent = `UNC: ${ex.uncPercentage ?? "N/A"}%`);
+            modalSUNC && (modalSUNC.textContent = `sUNC: ${ex.suncPercentage ?? "N/A"}%`);
 
-            modalWebsite.href = ex.websitelink || "#";
-            modalDiscord.href = ex.discordlink || "#";
+            modalWebsite && (modalWebsite.href = ex.websitelink || "#");
+            modalDiscord && (modalDiscord.href = ex.discordlink || "#");
 
-            modalLogo.src = ex.slug?.logo || "";
-            modalLogo.style.display = modalLogo.src ? "block" : "none";
+            if (modalLogo) {
+                modalLogo.src = ex.slug?.logo || "";
+                modalLogo.style.display = modalLogo.src ? "block" : "none";
+            }
 
-        } catch (err) {
-            modalTitle.textContent = "Failed to load exploit";
-            modalDescription.textContent = "";
+        } catch {
+            modalTitle && (modalTitle.textContent = "Failed to load exploit");
+            modalDescription && (modalDescription.textContent = "");
         }
     }
 
-    closeModal.onclick = () => modal.classList.add("hidden");
-    modal.onclick = e => e.target === modal && modal.classList.add("hidden");
+    // ⭐ CLOSE MODAL (SAFE)
+    if (closeModal && modal) {
+        closeModal.onclick = () => modal.classList.add("hidden");
+    }
+
+    if (modal) {
+        modal.onclick = e => {
+            if (e.target === modal) modal.classList.add("hidden");
+        };
+    }
 
     // ⭐ RENDER LIST
     function render(data) {
@@ -102,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </span>
             `;
 
-            // ⬇️ KLIK → FETCH DETAIL
             card.onclick = () => openModal(ex._id);
             list.appendChild(card);
         });
