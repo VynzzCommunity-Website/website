@@ -42,23 +42,30 @@
     </div>
 
     <!-- ✅ MODAL DETAIL (WAJIB ADA) -->
-    <div class="modal-content">
-        <button id="close-modal">✕</button>
-        <img id="modal-logo" alt="Logo" style="width: 80px; height: 80px; border-radius: 10px;">
+    <div id="exploit-modal" class="modal hidden">
+        <div class="modal-content">
+            <button id="close-modal">✕</button>
 
-        <h2 id="modal-title"></h2>
-        <p id="modal-description"></p>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <img id="modal-logo" src="" alt="Logo" style="width: 64px; height: 64px; border-radius: 12px; display: none;">
+                <div>
+                    <h2 id="modal-title" style="margin: 0;"></h2>
+                </div>
+            </div>
 
-        <div id="modal-extra-info"></div>
+            <p id="modal-description"></p>
 
-        <div class="stats-row">
-            <span id="modal-unc"></span>
-            <span id="modal-sunc"></span>
-        </div>
+            <div class="stats-row" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div id="modal-unc" class="stat-badge" style="flex:1; text-align:center;"></div>
+                <div id="modal-sunc" class="stat-badge" style="flex:1; text-align:center;"></div>
+            </div>
 
-        <div class="links-row">
-            <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
-            <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
+            <div id="modal-extra-info" class="modal-grid-info"></div>
+
+            <div class="links-row" style="display: flex; gap: 10px; margin-top: 20px;">
+                <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
+                <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
+            </div>
         </div>
     </div>
 
