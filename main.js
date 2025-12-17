@@ -65,13 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
         
         modal.classList.remove("hidden");
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || "No description.";
+        document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
+        document.getElementById("modal-description").textContent = ex.cost || "No description provided.";
         
         // LOGIKA TEKS PENJELASAN
         const warnBox = document.getElementById("modal-warning-text");
-        let warnText = "";
-        let warnColor = "";
-        let modalTag = "";
+        let warnText = "", warnColor = "", modalTag = "";
 
         if (ex.updateStatus) {
             warnText = "This Exploit is currently patched due to a Roblox update.";
@@ -94,13 +93,20 @@ document.addEventListener("DOMContentLoaded", () => {
         warnBox.textContent = warnText;
         warnBox.className = `warning-box ${warnColor}`;
 
+        // PERBAIKAN STRUKTUR INFO ITEM (Agar Style Tidak Error)
+        const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
+        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+
         document.getElementById("modal-extra-info").innerHTML = `
             <div class="info-item"><label>Status</label><span>${modalTag}</span></div>
-            <div class="info-item"><label>Type</label><span>${ex.extype}</span></div>
-            <div class="info-item"><label>Price</label><span>${ex.free ? 'FREE' : 'PAID'}</span></div>
+            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
+            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
         `;
         
+        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
+        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
+
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     }
@@ -127,9 +133,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     async function load() {
-        const res = await fetch(API_URL);
-        exploits = await res.json();
-        applyFilters();
+        try {
+            const res = await fetch(API_URL);
+            exploits = await res.json();
+            document.getElementById("count-all").textContent = exploits.length;
+            document.getElementById("count-working").textContent = exploits.filter(e => !e.updateStatus).length;
+            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus).length;
+            applyFilters();
+        } catch (e) { console.error(e); }
     }
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
     load();
