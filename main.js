@@ -21,23 +21,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const createCard = (ex) => {
             const card = document.createElement("div");
             
-            // --- 1. WARNA BACKGROUND (Hanya updateStatus) ---
+            // WARNA BACKGROUND (UpdateStatus)
             if (ex.updateStatus === true) {
                 card.className = "card status-working"; 
             } else {
                 card.className = "card status-patched"; 
             }
 
-            // --- 2. TEKS BADGE (URUTAN PRIORITAS BARU) ---
+            // TEKS BADGE (Detected & Clientmods)
             let statusText = "";
             let badgeColorClass = ""; 
 
             if (ex.clientmods === true) {
-                // PRIORITAS UTAMA: Clientmods
                 statusText = "BYPASSED";
                 badgeColorClass = "bypassed"; 
             } else if (ex.detected === true) {
-                // PRIORITAS KEDUA: Detected
                 statusText = "PATCHED";
                 badgeColorClass = "patched"; 
             } else if (ex.clientmods === false) {
@@ -88,30 +86,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const warnBox = document.getElementById("modal-warning-text");
         
-        // --- PERBAIKAN DI SINI: URUTAN PRIORITAS MODAL ---
-        let modalTag = "";
+        // --- LOGIKA PESAN DINAMIS BARU ---
+        let customMsg = "";
+        let msgColor = "";
+
         if (ex.clientmods === true) {
-            modalTag = "BYPASSED"; // Sekarang Clientmods dicek paling pertama
-        } else if (ex.detected === true) {
-            modalTag = "PATCHED";
+            customMsg = "This Exploits bypasses client modification bans but potentially could cause ban in banwaves";
+            msgColor = "purple";
         } else if (ex.clientmods === false) {
-            modalTag = "DETECTED";
+            customMsg = "This Exploit might be detected by hyperion, use at your own risk";
+            msgColor = "orange";
+        } else if (ex.detected === false) {
+            customMsg = "This Exploit is reported as undetected";
+            msgColor = "blue-hologram";
         } else {
-            modalTag = "UNDETECTED";
+            customMsg = "Status Unknown";
+            msgColor = "red";
         }
 
-        // Logika Pesan di Warning Box (Tetap melihat updateStatus)
-        let warnText = ex.updateStatus === true ? "Exploit is up to date." : "Update required/Patched.";
-        let warnColor = ex.updateStatus === true ? "green" : "red";
+        warnBox.textContent = customMsg;
+        warnBox.className = `warning-box ${msgColor}`;
 
-        warnBox.textContent = `Status: ${modalTag} - ${warnText}`;
-        warnBox.className = `warning-box ${warnColor}`;
-
+        // Info platform & harga
         const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
         const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
 
         document.getElementById("modal-extra-info").innerHTML = `
-            <div class="info-item"><label>Status</label><span>${modalTag}</span></div>
             <div class="info-item"><label>Type</label><span>${displayType}</span></div>
             <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     }
 
+    // Filter, Search, dan Load tetap sama
     function applyFilters() {
         let f = exploits.filter(ex => {
             const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
@@ -140,31 +141,21 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            
-            const countAll = document.getElementById("count-all");
-            const countWorking = document.getElementById("count-working");
-            const countPatched = document.getElementById("count-patched");
-
-            if(countAll) countAll.textContent = exploits.length;
-            if(countWorking) countWorking.textContent = exploits.filter(e => e.updateStatus === true).length;
-            if(countPatched) countPatched.textContent = exploits.filter(e => e.updateStatus === false).length;
-            
+            document.getElementById("count-all").textContent = exploits.length;
+            document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
+            document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
             applyFilters();
-        } catch (e) { console.error("Error load:", e); }
+        } catch (e) { console.error(e); }
     }
 
     searchInput.addEventListener("input", applyFilters);
     if(typeFilter) typeFilter.addEventListener("change", applyFilters);
-    
     filterButtons.forEach(btn => btn.onclick = () => {
-        document.querySelector(".filters .active")?.classList.remove("active");
+        document.querySelector(".filters .active").classList.remove("active");
         btn.classList.add("active");
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
-
-    const closeBtn = document.getElementById("close-modal");
-    if(closeBtn) closeBtn.onclick = () => modal.classList.add("hidden");
-
+    document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
     load();
 });
