@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function render(data) {
         if (!list) return;
-        list.innerHTML = "";
-        
+        list.innerHTML = ""; // Ini yang menghapus isi sebelumnya
         
         const windows = data.filter(ex => ex.extype === "wexecutor");
         const androids = data.filter(ex => ex.extype === "aexecutor");
@@ -77,6 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
         addGroup("iOS EXECUTORS", ios);
         addGroup("MACOS EXECUTORS", macos);
         addGroup("EXTERNAL EXECUTORS", externals);
+
+        // Tambahkan Footer di sini agar tidak hilang saat render
+        const footerHTML = `
+            <footer style="text-align: center; padding: 50px 20px; font-family: sans-serif; width: 100%;">
+                <p style="font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; margin: 0; opacity: 0.8;">
+                    Powered By <span style="color: #555; font-weight: 600;">Vynzz Exploit</span>
+                </p>
+                <p style="font-size: 9px; color: #bbb; letter-spacing: 1.5px; text-transform: uppercase; margin: 5px 0 0 0; opacity: 0.7;">
+                    Big Thanks <span style="color: #999; font-weight: 500;">DIFZ25X COMMUNITY</span>
+                </p>
+            </footer>
+        `;
+        list.insertAdjacentHTML('beforeend', footerHTML);
     }
 
     function openModal(id) {
