@@ -246,6 +246,25 @@ header p {
   margin-bottom: 24px;
 }
 
+#modal-description {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 15px 0;
+    max-height: 150px; /* Batasi tinggi jika terlalu panjang */
+    overflow-y: auto;  /* Tambahkan scroll jika melewati batas */
+    padding-right: 5px;
+}
+
+/* Custom Scrollbar untuk deskripsi */
+#modal-description::-webkit-scrollbar {
+    width: 4px;
+}
+#modal-description::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
 .info-item {
   background: rgba(255, 255, 255, 0.03);
   padding: 12px;
