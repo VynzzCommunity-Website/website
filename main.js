@@ -131,8 +131,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
             let matchStatus = true;
             
-            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
-            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
+		 matchStatus = (ex.updateStatus === true);
+ 		matchStatus = (ex.updateStatus === false);
             
             return matchSearch && matchType && matchStatus;
         });
