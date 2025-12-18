@@ -1,10 +1,9 @@
 const API_URL = "/api/exploits";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function() {
     const list = document.getElementById("exploit-list");
     const searchInput = document.getElementById("search");
     const typeFilter = document.getElementById("type-filter");
-    const filterButtons = document.querySelectorAll(".filters button");
     const modal = document.getElementById("exploit-modal");
     
     let exploits = [];
@@ -14,105 +13,84 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) return;
         list.innerHTML = "";
         
-        const windows = data.filter(ex => ex.extype === "wexecutor");
-        const androids = data.filter(ex => ex.extype === "aexecutor");
-        const ios = data.filter(ex => ex.extype === "iexecutor");
-        const macos = data.filter(ex => ex.extype === "mexecutor");
-        const externals = data.filter(ex => ex.extype === "wexternal");
+        const categories = [
+            { label: "WINDOWS EXECUTORS", type: "wexecutor" },
+            { label: "ANDROID EXECUTORS", type: "aexecutor" },
+            { label: "iOS EXECUTORS", type: "iexecutor" },
+            { label: "MACOS EXECUTORS", type: "mexecutor" },
+            { label: "EXTERNAL EXECUTORS", type: "wexternal" }
+        ];
 
-        const createCard = (ex) => {
-            const card = document.createElement("div");
-            
-            if (ex.updateStatus === true) {
-                card.className = "card status-working"; 
-            } else {
-                card.className = "card status-patched"; 
-            }
-
-            let statusText = "";
-            let badgeColorClass = ""; 
-
-            if (ex.clientmods === true) {
-                statusText = "BYPASSED";
-                badgeColorClass = "bypassed"; 
-            } else if (ex.detected === true) {
-                statusText = "PATCHED";
-                badgeColorClass = "patched"; 
-            } else if (ex.clientmods === false) {
-                statusText = "DETECTED";
-                badgeColorClass = "detected-warn"; 
-            } else {
-                statusText = "UNDETECTED";
-                badgeColorClass = "working"; 
-            }
-
-            card.innerHTML = `
-                <h2>${ex.title}</h2>
-                <p>Platform: ${ex.platform}</p>
-                <span class="badge ${badgeColorClass}">${statusText}</span>
-            `;
-            
-            card.onclick = () => openModal(ex._id);
-            return card;
-        };
-
-        const addGroup = (title, items) => {
+        categories.forEach(cat => {
+            const items = data.filter(ex => ex.extype === cat.type);
             if (items.length > 0) {
-                const h = document.createElement("div");
-                h.className = "group-header";
-                h.innerHTML = `<span>${title}</span>`;
-                list.appendChild(h);
+                const header = document.createElement("div");
+                header.className = "group-header";
+                header.innerHTML = `<span>${cat.label}</span>`;
+                list.appendChild(header);
                 
-                const gridWrapper = document.createElement("div");
-                gridWrapper.className = "grid";
+                const grid = document.createElement("div");
+                grid.className = "grid";
                 
-                items.forEach(ex => gridWrapper.appendChild(createCard(ex)));
-                list.appendChild(gridWrapper);
-            }
-        };
+                items.forEach(ex => {
+                    const card = document.createElement("div");
+                    card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
 
-        addGroup("WINDOWS EXECUTORS", windows);
-        addGroup("ANDROID EXECUTORS", androids);
-        addGroup("iOS EXECUTORS", ios);
-        addGroup("MACOS EXECUTORS", macos);
-        addGroup("EXTERNAL EXECUTORS", externals);
+                    let sText = "UNDETECTED";
+                    let bClass = "working";
+
+                    if (ex.clientmods) {
+                        sText = "BYPASSED"; bClass = "bypassed";
+                    } else if (ex.detected) {
+                        sText = "PATCHED"; bClass = "patched";
+                    } else if (ex.clientmods === false) {
+                        sText = "DETECTED"; bClass = "detected-warn";
+                    }
+
+                    card.innerHTML = `
+                        <h2>${ex.title}</h2>
+                        <p>Platform: ${ex.platform}</p>
+                        <span class="badge ${bClass}">${sText}</span>
+                    `;
+                    
+                    card.onclick = () => openModal(ex._id);
+                    grid.appendChild(card);
+                });
+                list.appendChild(grid);
+            }
+        });
     }
 
-    function openModal(id) {
+    window.openModal = function(id) {
         const ex = exploits.find(e => (e._id === id || e.id === id));
         if (!ex) return;
         
         modal.classList.remove("hidden");
         
-        // Header Info
         document.getElementById("modal-title").textContent = ex.title;
-        
-        // FIX: Mengambil logo dan deskripsi dari properti 'slug'
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
-        let customMsg = "";
-        let msgColor = "";
+        let msg = "Status Unknown";
+        let color = "red";
 
         if (ex.clientmods === true) {
-            customMsg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
-            msgColor = "purple";
+            msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
+            color = "purple";
         } else if (ex.clientmods === false) {
-            customMsg = "This Exploit might be detected by hyperion, use at your own risk";
-            msgColor = "orange";
+            msg = "This Exploit might be detected by hyperion, use at your own risk";
+            color = "orange";
         } else if (ex.detected === false) {
-            customMsg = "This Exploit is reported as undetected";
-            msgColor = "blue-hologram";
-        } else {
-            customMsg = "Status Unknown";
-            msgColor = "red";
+            msg = "This Exploit is reported as undetected";
+            color = "blue-hologram";
         }
 
-        warnBox.textContent = customMsg;
-        warnBox.className = `warning-box ${msgColor}`;
+        warnBox.textContent = msg;
+        warnBox.className = `warning-box ${color}`;
 
-        const displayType = ex.extype === "wexecutor" ? "Internal" : (ex.extype === "mexecutor" ? "MacOS" : "External");
+        // FIX: Perubahan wexecutor menjadi "Executor"
+        const displayType = ex.extype === "wexecutor" ? "Executor" : (ex.extype === "mexecutor" ? "MacOS" : "External");
         const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
 
         document.getElementById("modal-extra-info").innerHTML = `
@@ -127,55 +105,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
-    }
+    };
 
     function applyFilters() {
-        let f = exploits.filter(ex => {
-            const matchSearch = ex.title.toLowerCase().includes(searchInput.value.toLowerCase());
+        const query = searchInput.value.toLowerCase();
+        const filtered = exploits.filter(ex => {
+            const matchSearch = ex.title.toLowerCase().includes(query);
             const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
             let matchStatus = true;
             if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
             if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
             return matchSearch && matchType && matchStatus;
         });
-        render(f);
+        render(filtered);
     }
 
-    async function load() {
+    async function loadData() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
             
-            const cAll = document.getElementById("count-all");
-            const cWork = document.getElementById("count-working");
-            const cPatch = document.getElementById("count-patched");
+            const stats = {
+                all: exploits.length,
+                working: exploits.filter(e => e.updateStatus).length,
+                patched: exploits.filter(e => !e.updateStatus).length
+            };
 
-            if(cAll) cAll.textContent = exploits.length;
-            if(cWork) cWork.textContent = exploits.filter(e => e.updateStatus === true).length;
-            if(cPatch) cPatch.textContent = exploits.filter(e => e.updateStatus === false).length;
+            Object.keys(stats).forEach(key => {
+                const el = document.getElementById(`count-${key}`);
+                if (el) el.textContent = stats[key];
+            });
             
             applyFilters();
         } catch (e) {
-            console.error(e);
-            if (list) {
-                list.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Failed to load exploits. Please try again later.</p>';
-            }
+            console.error("Gagal load data:", e);
         }
     }
 
-    searchInput.addEventListener("input", applyFilters);
-    if(typeFilter) typeFilter.addEventListener("change", applyFilters);
-    filterButtons.forEach(btn => btn.onclick = () => {
-        document.querySelector(".filters .active")?.classList.remove("active");
-        btn.classList.add("active");
-        currentStatus = btn.dataset.filter;
-        applyFilters();
+    searchInput.oninput = applyFilters;
+    if (typeFilter) typeFilter.onchange = applyFilters;
+
+    document.querySelectorAll(".filters button").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelector(".filters .active")?.classList.remove("active");
+            btn.classList.add("active");
+            currentStatus = btn.dataset.filter;
+            applyFilters();
+        };
     });
-    
+
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    modal.onclick = (e) => {
+    
+    window.onclick = (e) => {
         if (e.target === modal) modal.classList.add("hidden");
     };
-    
-    load();
+
+    loadData();
 });
