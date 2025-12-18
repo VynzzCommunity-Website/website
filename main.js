@@ -68,11 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
         document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
-        // Stats UNC/sUNC
-        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
-        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
-
-        // LOGIKA PLATFORM (Mac -> MacOS)
+        // --- Logika Platform Mac -> MacOS ---
         let displayPlatform = ex.platform || "N/A";
         if (displayPlatform.toLowerCase() === "mac" || displayPlatform.toLowerCase() === "macos") {
             displayPlatform = "MacOS";
@@ -85,6 +81,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("modal-price").textContent = ex.free ? "FREE" : "PAID";
         document.getElementById("modal-version").textContent = ex.version || "N/A";
 
+        // Warning Box
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
         let colorClass = "orange";
@@ -95,6 +92,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${colorClass}`;
+
+        // Stats UNC
+        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
+        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
