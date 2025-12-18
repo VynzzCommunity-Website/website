@@ -9,11 +9,39 @@
 <body>
     <div class="container">
         <header>
-            <h1>Exploit Tracker</h1>
-            <div class="live">● LIVE UPDATES</div>
+            <div class="title-row">
+                <h1>Executor Status</h1>
+                <div class="live"><span class="dot"></span> LIVE UPDATES</div>
+            </div>
+            <div class="counters" style="display:flex; justify-content:center; gap:20px; margin-bottom:30px; font-size:0.9rem; opacity:0.8;">
+                <span>Total: <strong id="count-all">0</strong></span>
+                <span>Online: <strong id="count-working" style="color:#10b981">0</strong></span>
+                <span>Offline: <strong id="count-patched" style="color:#ef4444">0</strong></span>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <input type="text" id="search" placeholder="Search for executors..." autocomplete="off" />
+                <div class="filters">
+                    <button data-filter="all" class="active">All</button>
+                    <button data-filter="working">Working</button>
+                    <button data-filter="patched">Patched</button>
+                    <select id="type-filter" class="type-select">
+                        <option value="all">All Platforms</option>
+                        <option value="wexecutor">Windows</option>
+                        <option value="aexecutor">Android</option>
+                        <option value="iexecutor">iOS</option>
+                        <option value="mexecutor">MacOS</option>
+                        <option value="wexternal">External</option>
+                    </select>
+                </div>
+            </div>
         </header>
 
         <section id="exploit-list"></section>
+
+        <footer class="main-footer">
+            <p>Powered by <strong>Vynzz Exploit</strong></p>
+            <p style="font-size:0.7rem; margin-top:5px;">Big Thanks to DIFZ25X COMMUNITY</p>
+        </footer>
     </div>
 
     <div id="exploit-modal" class="modal hidden">
@@ -23,10 +51,11 @@
                 <img id="modal-logo" src="" alt="Logo">
                 <h2 id="modal-title"></h2>
             </div>
-            <div id="modal-description" style="font-size:0.8rem; color:#94a3b8; margin:10px 0;"></div>
-            <div class="stats-row" style="display:flex; gap:10px;">
-                <div id="modal-unc" class="info-item" style="flex:1; font-size:0.8rem;"></div>
-                <div id="modal-sunc" class="info-item" style="flex:1; font-size:0.8rem;"></div>
+            <p id="modal-description" style="font-size:0.85rem; color:#94a3b8; margin-bottom:20px; line-height:1.6;"></p>
+            <div id="modal-warning-text"></div>
+            <div class="stats-row">
+                <div id="modal-unc" class="stat-badge"></div>
+                <div id="modal-sunc" class="stat-badge"></div>
             </div>
             <div id="modal-extra-info" class="modal-grid-info"></div>
             <div class="links-row">
