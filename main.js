@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!list) return;
         list.innerHTML = "";
         
-        
         const windows = data.filter(ex => ex.extype === "wexecutor");
         const androids = data.filter(ex => ex.extype === "aexecutor");
         const ios = data.filter(ex => ex.extype === "iexecutor");
@@ -84,17 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!ex) return;
         
         modal.classList.remove("hidden");
+        
+        // Header Info
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.logo || "https://via.placeholder.com/60";
-        document.getElementById("modal-description").textContent = ex.description || ex.cost || "No description.";
+        
+        // FIX: Mengambil logo dan deskripsi dari properti 'slug'
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
         const warnBox = document.getElementById("modal-warning-text");
-        
         let customMsg = "";
         let msgColor = "";
 
         if (ex.clientmods === true) {
-            customMsg = "This Exploits bypasses client modification bans but potentially could cause ban in banwaves";
+            customMsg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
             msgColor = "purple";
         } else if (ex.clientmods === false) {
             customMsg = "This Exploit might be detected by hyperion, use at your own risk";
@@ -155,7 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
             applyFilters();
         } catch (e) {
             console.error(e);
-            list.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Failed to load exploits. Please try again later.</p>';
+            if (list) {
+                list.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:40px;">Failed to load exploits. Please try again later.</p>';
+            }
         }
     }
 
@@ -167,9 +171,11 @@ document.addEventListener("DOMContentLoaded", () => {
         currentStatus = btn.dataset.filter;
         applyFilters();
     });
+    
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
     modal.onclick = (e) => {
         if (e.target === modal) modal.classList.add("hidden");
     };
+    
     load();
 });
