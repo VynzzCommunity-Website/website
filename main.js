@@ -34,8 +34,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 items.forEach(ex => {
                     const card = document.createElement("div");
-                    
-                    // PENERAPAN LOGIKA UPDATESTATUS
                     const statusClass = ex.updateStatus ? 'status-working' : 'status-patched';
                     card.className = `card ${statusClass}`;
 
@@ -56,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         <span class="badge ${bClass}">${sText}</span>
                     `;
                     
-                    card.onclick = () => openModal(ex._id);
+                    card.onclick = () => openModal(ex._id || ex.id);
                     grid.appendChild(card);
                 });
                 list.appendChild(grid);
@@ -70,9 +68,15 @@ document.addEventListener("DOMContentLoaded", function() {
         
         modal.classList.remove("hidden");
         
+        // Basic Info
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
         document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
+
+        // EXTRA INFO (Type, Price, Version)
+        document.getElementById("modal-type").textContent = ex.extype?.toUpperCase() || ex.platform || "N/A";
+        document.getElementById("modal-price").textContent = ex.isFree ? "FREE" : (ex.price || "PAID");
+        document.getElementById("modal-version").textContent = ex.version || "N/A";
 
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
