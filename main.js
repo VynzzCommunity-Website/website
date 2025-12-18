@@ -40,13 +40,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     let sText = "UNDETECTED";
                     let bClass = "working";
 
-                    if (ex.clientmods) {
-                        sText = "BYPASSED"; bClass = "bypassed";
-                    } else if (ex.detected) {
-                        sText = "PATCHED"; bClass = "patched";
-                    } else if (ex.clientmods === false) {
-                        sText = "DETECTED"; bClass = "detected-warn";
-                    }
+                    if (ex.clientmods) { sText = "BYPASSED"; bClass = "bypassed"; }
+                    else if (ex.detected) { sText = "PATCHED"; bClass = "patched"; }
+                    else if (ex.clientmods === false) { sText = "DETECTED"; bClass = "detected-warn"; }
 
                     card.innerHTML = `
                         <h2>${ex.title}</h2>
@@ -76,8 +72,12 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
         document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
 
-        // Grid Info (Bawah)
-        document.getElementById("modal-platform").textContent = ex.platform || "N/A";
+        // LOGIKA PLATFORM (Mac -> MacOS)
+        let displayPlatform = ex.platform || "N/A";
+        if (displayPlatform.toLowerCase() === "mac" || displayPlatform.toLowerCase() === "macos") {
+            displayPlatform = "MacOS";
+        }
+        document.getElementById("modal-platform").textContent = displayPlatform;
         
         const typeMap = { 'wexecutor': 'Executor', 'wexternal': 'External', 'aexecutor': 'Executor', 'iexecutor': 'Executor', 'mexecutor': 'Executor' };
         document.getElementById("modal-type").textContent = typeMap[ex.extype] || "N/A";
@@ -89,16 +89,9 @@ document.addEventListener("DOMContentLoaded", function() {
         let msg = "Status Unknown";
         let colorClass = "orange";
 
-        if (ex.clientmods === true) {
-            msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
-            colorClass = "purple";
-        } else if (ex.clientmods === false) {
-            msg = "This Exploit might be detected by hyperion, use at your own risk";
-            colorClass = "orange";
-        } else if (ex.detected === false) {
-            msg = "This Exploit is reported as undetected";
-            colorClass = "blue-hologram";
-        }
+        if (ex.clientmods === true) { msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves"; colorClass = "purple"; }
+        else if (ex.clientmods === false) { msg = "This Exploit might be detected by hyperion, use at your own risk"; colorClass = "orange"; }
+        else if (ex.detected === false) { msg = "This Exploit is reported as undetected"; colorClass = "blue-hologram"; }
 
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${colorClass}`;
