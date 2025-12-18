@@ -4,19 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roblox Exploit Tracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
     <style>
+        /* CSS Tambahan untuk Footer agar tetap rapi */
         .main-footer {
             text-align: center;
             padding: 40px 20px;
+            font-family: sans-serif;
             margin-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .text-powered {
             font-size: 11px;
-            color: #64748b;
+            color: #888;
             letter-spacing: 2px;
             text-transform: uppercase;
             margin: 0;
@@ -24,7 +24,7 @@
 
         .text-community {
             font-size: 9px;
-            color: #475569;
+            color: #bbb;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             margin: 5px 0 0 0;
@@ -43,29 +43,27 @@
                 <span class="text-working">Online: <b id="count-working">0</b></span>
                 <span class="text-patched">Offline: <b id="count-patched">0</b></span>
             </div>
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Search executors..." autocomplete="off" />
-                <div class="filters">
-                    <button data-filter="all" class="active">All</button>
-                    <button data-filter="working">Working</button>
-                    <button data-filter="patched">Patched</button>
-                    <select id="type-filter" class="type-select">
-                        <option value="all">All Platforms</option>
-                        <option value="wexecutor">Windows</option>
-                        <option value="aexecutor">Android</option>
-                        <option value="iexecutor">iOS</option>
-                        <option value="mexecutor">MacOS</option>
-                        <option value="wexternal">External</option>
-                    </select>
-                </div>
+            <input type="text" id="search" placeholder="Search exploit..." autocomplete="off" />
+            <div class="filters">
+                <button data-filter="all" class="active">All</button>
+                <button data-filter="working">Working</button>
+                <button data-filter="patched">Patched</button>
+                <select id="type-filter" class="type-select">
+                    <option value="all">All Types</option>
+                    <option value="wexecutor">Windows</option>
+                    <option value="aexecutor">Android</option>
+                    <option value="iexecutor">iOS</option>
+                    <option value="mexecutor">MacOS</option>
+                    <option value="wexternal">External</option>
+                </select>
             </div>
         </header>
 
         <section id="exploit-list"></section>
 
         <footer class="main-footer">
-            <p class="text-powered">Powered By <span style="color: #6366f1; font-weight: 600;">Vynzz Exploit</span></p>
-            <p class="text-community">Big Thanks <span style="color: #94a3b8; font-weight: 500;">DIFZ25X COMMUNITY</span></p>
+            <p class="text-powered">Powered By <span style="color: #555; font-weight: 600;">Vynzz Exploit</span></p>
+            <p class="text-community">Big Thanks <span style="color: #999; font-weight: 500;">DIFZ25X COMMUNITY</span></p>
         </footer>
     </div>
 
@@ -76,38 +74,16 @@
                 <img id="modal-logo" src="" alt="Logo">
                 <h2 id="modal-title"></h2>
             </div>
-
-            <div id="modal-description" style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px;"></div>
-
-            <div class="modal-grid-info">
-                <div class="info-item">
-                    <label>Platform</label>
-                    <span id="modal-platform">-</span>
-                </div>
-                <div class="info-item">
-                    <label>Type</label>
-                    <span id="modal-type">-</span>
-                </div>
-                <div class="info-item">
-                    <label>Price</label>
-                    <span id="modal-price">-</span>
-                </div>
-                <div class="info-item">
-                    <label>Version</label>
-                    <span id="modal-version">-</span>
-                </div>
-            </div>
-
+            <p id="modal-description"></p>
             <div id="modal-warning-text" class="warning-box"></div>
-
             <div class="stats-row">
                 <div id="modal-unc" class="stat-badge"></div>
                 <div id="modal-sunc" class="stat-badge"></div>
             </div>
-
+            <div id="modal-extra-info" class="modal-grid-info"></div>
             <div class="links-row">
-                <a id="modal-website" target="_blank" class="btn-link btn-primary">Website</a>
-                <a id="modal-discord" target="_blank" class="btn-link btn-secondary">Discord</a>
+                <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
+                <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
             </div>
         </div>
     </div>
