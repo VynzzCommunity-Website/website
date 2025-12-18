@@ -9,30 +9,8 @@
 <body>
     <div class="container">
         <header>
-            <div class="title-row">
-                <h1>Roblox Executor Tracker</h1>
-                <div class="live"><span class="dot"></span> LIVE</div>
-            </div>
-            <p>Real-time exploit availability tracker</p>
-            <div class="counters">
-                <span>All: <strong id="count-all">0</strong></span>
-                <span>Working: <strong id="count-working" style="color:#4ade80">0</strong></span>
-                <span>Patched: <strong id="count-patched" style="color:#f87171">0</strong></span>
-            </div>
-            <input type="text" id="search" placeholder="Search exploit..." autocomplete="off" />
-            <div class="filters">
-                <button data-filter="all" class="active">All Status</button>
-                <button data-filter="working">Working</button>
-                <button data-filter="patched">Patched</button>
-                <select id="type-filter" class="type-select">
-                    <option value="all">All Types</option>
-                    <option value="wexecutor">Windows</option>
-                    <option value="aexecutor">Android</option>
-                    <option value="iexecutor">iOS</option>
-                    <option value="mexecutor">MacOS</option>
-                    <option value="wexternal">External</option>
-                </select>
-            </div>
+            <h1>Exploit Tracker</h1>
+            <div class="live">● LIVE UPDATES</div>
         </header>
 
         <section id="exploit-list"></section>
@@ -45,16 +23,15 @@
                 <img id="modal-logo" src="" alt="Logo">
                 <h2 id="modal-title"></h2>
             </div>
-            <div id="modal-description"></div>
-            <div id="modal-warning-text"></div>
-            <div class="stats-row" style="display:flex; gap:10px; margin-bottom:10px;">
-                <div id="modal-unc" class="info-item" style="flex:1"></div>
-                <div id="modal-sunc" class="info-item" style="flex:1"></div>
+            <div id="modal-description" style="font-size:0.8rem; color:#94a3b8; margin:10px 0;"></div>
+            <div class="stats-row" style="display:flex; gap:10px;">
+                <div id="modal-unc" class="info-item" style="flex:1; font-size:0.8rem;"></div>
+                <div id="modal-sunc" class="info-item" style="flex:1; font-size:0.8rem;"></div>
             </div>
             <div id="modal-extra-info" class="modal-grid-info"></div>
             <div class="links-row">
-                <a id="modal-website" target="_blank" class="btn-link">🌐 Website</a>
-                <a id="modal-discord" target="_blank" class="btn-link">💬 Discord</a>
+                <a id="modal-website" target="_blank" class="btn-link">Website</a>
+                <a id="modal-discord" target="_blank" class="btn-link">Discord</a>
             </div>
         </div>
     </div>

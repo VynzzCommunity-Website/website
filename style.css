@@ -24,121 +24,55 @@ body {
         radial-gradient(circle at 0% 100%, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
     color: var(--text-main);
     min-height: 100vh;
-    line-height: 1.6;
 }
 
-.container {
-    max-width: 1000px;
-    margin: auto;
-    padding: 40px 20px;
-}
+.container { max-width: 1000px; margin: auto; padding: 40px 20px; }
 
 /* HEADER */
 header { text-align: center; margin-bottom: 50px; }
-.title-row { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-header h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+header h1 { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+.live { color: #4ade80; font-weight: 700; font-size: 0.8rem; margin-bottom: 20px; }
 
-.live {
-    background: rgba(34, 197, 94, 0.1);
-    color: #4ade80;
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    display: inline-flex;
-    align-items: center; gap: 8px;
-}
-
-.dot {
-    width: 8px; height: 8px; background: #4ade80; border-radius: 50%;
-    box-shadow: 0 0 12px #4ade80; animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.95); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.6; }
-    100% { transform: scale(0.95); opacity: 1; }
-}
-
-/* SEARCH & FILTERS */
-#search {
-    width: 100%; padding: 16px 20px; background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border); border-radius: 16px; color: white;
-    font-size: 1rem; margin-bottom: 16px; transition: all 0.3s;
-}
-
-.filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-.filters button, .type-select {
-    padding: 10px 22px; border-radius: 12px; background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border); color: var(--text-dim); font-weight: 600; cursor: pointer;
-}
-.filters button.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-/* GRID & CARDS */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-.card {
-    background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;
-    padding: 24px; transition: 0.3s; cursor: pointer; backdrop-filter: blur(12px);
-}
-.card:hover { transform: translateY(-6px); background: rgba(255, 255, 255, 0.05); }
-
-/* MODAL (FIX UNTUK MASALAH ANDA) */
+/* MODAL KONTROL (PENTING!) */
 .modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    display: flex; /* Menggunakan flex untuk memposisikan di tengah */
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 9999;
 }
-
-/* INI YANG MEMBUATNYA TERSEMBUNYI */
-.modal.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 .modal-content {
-    background: #0b0f1a;
-    border-radius: 28px;
-    border: 1px solid var(--border);
-    padding: 32px;
-    width: 90%;
-    max-width: 450px;
-    position: relative;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    background: #0b0f1a; border-radius: 24px; border: 1px solid var(--border);
+    padding: 30px; width: 90%; max-width: 450px; position: relative;
 }
 
-#close-modal {
-    position: absolute; top: 20px; right: 20px;
-    background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;
+#close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem; }
+
+/* LOGO DI MODAL */
+#modal-logo { width: 60px; height: 60px; border-radius: 12px; margin-bottom: 15px; object-fit: cover; }
+
+/* GRID & CARDS */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+.card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px;
+    padding: 20px; transition: 0.3s; cursor: pointer;
 }
+.card:hover { transform: translateY(-5px); border-color: var(--primary); }
 
-.modal-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-#modal-logo { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
+/* STATUS & BADGE (FIX UNTUK CARD YANG HILANG) */
+.badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; margin-top: 10px; text-transform: uppercase; }
+.working { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.patched { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.bypassed { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.detected-warn { background: rgba(249, 115, 22, 0.2); color: #f97316; }
 
-.modal-grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-.info-item { background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 12px; border: 1px solid var(--border); }
-.info-item label { display: block; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+/* INFO GRID */
+.modal-grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+.info-item { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+.info-item label { display: block; font-size: 0.6rem; color: var(--text-dim); }
 
-.links-row { display: flex; gap: 12px; margin-top: 20px; }
-.btn-link { 
-    flex: 1; text-align: center; padding: 12px; border-radius: 12px; 
-    text-decoration: none; font-weight: 700; font-size: 0.9rem; color: white;
-}
+/* LINKS */
+.links-row { display: flex; gap: 10px; }
+.btn-link { flex: 1; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; color: #fff; font-weight: 700; font-size: 0.8rem; }
 #modal-website { background: var(--primary); }
 #modal-discord { background: #334155; }
-
-.warning-box { padding: 12px; border-radius: 10px; margin: 15px 0; font-size: 0.85rem; text-align: center; }
-.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.2); }
-.orange { background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2); }
-.blue-hologram { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.2); }

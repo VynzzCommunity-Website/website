@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (items.length > 0) {
                 const header = document.createElement("div");
                 header.className = "group-header";
-                header.innerHTML = `<span>${cat.label}</span>`;
+                header.innerHTML = `<span style="display:block; margin: 20px 0 10px; font-weight:800; font-size:0.7rem; color:#6366f1;">${cat.label}</span>`;
                 list.appendChild(header);
                 
                 const grid = document.createElement("div");
@@ -34,22 +34,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 items.forEach(ex => {
                     const card = document.createElement("div");
-                    card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
+                    card.className = "card";
 
                     let sText = "UNDETECTED";
                     let bClass = "working";
 
-                    if (ex.clientmods) {
-                        sText = "BYPASSED"; bClass = "bypassed";
-                    } else if (ex.detected) {
-                        sText = "PATCHED"; bClass = "patched";
-                    } else if (ex.clientmods === false) {
-                        sText = "DETECTED"; bClass = "detected-warn";
-                    }
+                    if (ex.clientmods) { sText = "BYPASSED"; bClass = "bypassed"; }
+                    else if (ex.detected) { sText = "PATCHED"; bClass = "patched"; }
+                    else if (ex.clientmods === false) { sText = "DETECTED"; bClass = "detected-warn"; }
 
                     card.innerHTML = `
                         <h2>${ex.title}</h2>
-                        <p>Platform: ${ex.platform}</p>
+                        <p style="font-size:0.8rem; color:#94a3b8;">${ex.platform}</p>
                         <span class="badge ${bClass}">${sText}</span>
                     `;
                     
@@ -66,40 +62,13 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!ex) return;
         
         modal.classList.remove("hidden");
-        
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
-
-        const warnBox = document.getElementById("modal-warning-text");
-        let msg = "Status Unknown";
-        let colorClass = "blue-hologram";
-
-        if (ex.clientmods === true) {
-            msg = "This Exploit bypasses client modification bans.";
-            colorClass = "purple";
-        } else if (ex.clientmods === false) {
-            msg = "This Exploit might be detected by Hyperion.";
-            colorClass = "orange";
-        } else if (ex.detected === false) {
-            msg = "This Exploit is reported as undetected.";
-            colorClass = "blue-hologram";
-        }
-
-        warnBox.textContent = msg;
-        warnBox.className = `warning-box ${colorClass}`;
-
-        let displayType = "External";
-        if (ex.extype === "wexecutor") displayType = "Executor";
-        else if (ex.extype === "iexecutor") displayType = "iOS Executor";
-        else if (ex.extype === "aexecutor") displayType = "Android Executor";
-        else if (ex.extype === "mexecutor") displayType = "MacOS";
-
-        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description.";
 
         document.getElementById("modal-extra-info").innerHTML = `
-            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
-            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
+            <div class="info-item"><label>Type</label><span>${ex.extype}</span></div>
+            <div class="info-item"><label>Price</label><span>${ex.free ? "FREE" : "PAID"}</span></div>
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
             <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
         `;
@@ -111,59 +80,14 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     };
 
-    function applyFilters() {
-        const query = searchInput.value.toLowerCase();
-        const filtered = exploits.filter(ex => {
-            const matchSearch = ex.title.toLowerCase().includes(query);
-            const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
-            let matchStatus = true;
-            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
-            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
-            return matchSearch && matchType && matchStatus;
-        });
-        render(filtered);
-    }
-
     async function loadData() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            
-            const stats = {
-                all: exploits.length,
-                working: exploits.filter(e => e.updateStatus).length,
-                patched: exploits.filter(e => !e.updateStatus).length
-            };
-
-            Object.keys(stats).forEach(key => {
-                const el = document.getElementById(`count-${key}`);
-                if (el) el.textContent = stats[key];
-            });
-            
-            applyFilters();
-        } catch (e) {
-            console.error("Gagal load data:", e);
-        }
+            render(exploits);
+        } catch (e) { console.error(e); }
     }
 
-    searchInput.oninput = applyFilters;
-    if (typeFilter) typeFilter.onchange = applyFilters;
-
-    document.querySelectorAll(".filters button").forEach(btn => {
-        btn.onclick = () => {
-            document.querySelector(".filters .active")?.classList.remove("active");
-            btn.classList.add("active");
-            currentStatus = btn.dataset.filter;
-            applyFilters();
-        };
-    });
-
-    // Menutup modal
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    
-    window.onclick = (e) => {
-        if (e.target === modal) modal.classList.add("hidden");
-    };
-
     loadData();
 });
