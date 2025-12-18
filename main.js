@@ -35,17 +35,24 @@ document.addEventListener("DOMContentLoaded", function() {
                 items.forEach(ex => {
                     const card = document.createElement("div");
                     card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
-                    
-                    let sText = "UNDETECTED", bClass = "working";
-                    if (ex.clientmods === true) { sText = "BYPASSED"; bClass = "bypassed"; }
-                    else if (ex.detected === true) { sText = "PATCHED"; bClass = "patched"; }
-                    else if (ex.clientmods === false) { sText = "DETECTED"; bClass = "detected-warn"; }
+
+                    let sText = "UNDETECTED";
+                    let bClass = "working";
+
+                    if (ex.clientmods) {
+                        sText = "BYPASSED"; bClass = "bypassed";
+                    } else if (ex.detected) {
+                        sText = "PATCHED"; bClass = "patched";
+                    } else if (ex.clientmods === false) {
+                        sText = "DETECTED"; bClass = "detected-warn";
+                    }
 
                     card.innerHTML = `
                         <h2>${ex.title}</h2>
                         <p>Platform: ${ex.platform}</p>
                         <span class="badge ${bClass}">${sText}</span>
                     `;
+                    
                     card.onclick = () => openModal(ex._id);
                     grid.appendChild(card);
                 });
@@ -60,58 +67,103 @@ document.addEventListener("DOMContentLoaded", function() {
         
         modal.classList.remove("hidden");
         
-        // Header Modal (Logo samping judul)
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
-        
-        // Deskripsi dengan area scroll
-        document.getElementById("modal-description").innerHTML = `
-            <div class="desc-scroll-area">${ex.slug?.fullDescription || ex.description || "No description available."}</div>
-        `;
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
-        // Warning Box Status
         const warnBox = document.getElementById("modal-warning-text");
-        let msg = "Status Unknown", color = "red";
-        if (ex.clientmods === true) { msg = "Bypasses client modification bans."; color = "purple"; }
-        else if (ex.clientmods === false) { msg = "Might be detected by Hyperion."; color = "orange"; }
-        else if (ex.detected === false) { msg = "Reported as undetected."; color = "blue-hologram"; }
-        warnBox.textContent = msg;
-        warnBox.className = `warning-box ${color}`;
+        let msg = "Status Unknown";
+        let colorClass = "blue-hologram";
 
-        // Info Grid
+        if (ex.clientmods === true) {
+            msg = "This Exploit bypasses client modification bans.";
+            colorClass = "purple";
+        } else if (ex.clientmods === false) {
+            msg = "This Exploit might be detected by Hyperion.";
+            colorClass = "orange";
+        } else if (ex.detected === false) {
+            msg = "This Exploit is reported as undetected.";
+            colorClass = "blue-hologram";
+        }
+
+        warnBox.textContent = msg;
+        warnBox.className = `warning-box ${colorClass}`;
+
         let displayType = "External";
         if (ex.extype === "wexecutor") displayType = "Executor";
         else if (ex.extype === "iexecutor") displayType = "iOS Executor";
         else if (ex.extype === "aexecutor") displayType = "Android Executor";
-        
+        else if (ex.extype === "mexecutor") displayType = "MacOS";
+
+        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+
         document.getElementById("modal-extra-info").innerHTML = `
-            <div class="info-item"><label>Type</label><span class="val-styled">${displayType}</span></div>
-            <div class="info-item"><label>Price</label><span class="val-styled highlight">${ex.free ? "FREE" : (ex.cost || "PAID")}</span></div>
-            <div class="info-item"><label>Version</label><span class="val-styled">${ex.version || 'N/A'}</span></div>
-            <div class="info-item"><label>Platform</label><span class="val-styled">${ex.platform || 'N/A'}</span></div>
+            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
+            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
+            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
         `;
         
-        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
-        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
+        document.getElementById("modal-unc").innerHTML = `<b>UNC:</b> ${ex.uncPercentage || 0}%`;
+        document.getElementById("modal-sunc").innerHTML = `<b>sUNC:</b> ${ex.suncPercentage || 0}%`;
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     };
+
+    function applyFilters() {
+        const query = searchInput.value.toLowerCase();
+        const filtered = exploits.filter(ex => {
+            const matchSearch = ex.title.toLowerCase().includes(query);
+            const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
+            let matchStatus = true;
+            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
+            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
+            return matchSearch && matchType && matchStatus;
+        });
+        render(filtered);
+    }
 
     async function loadData() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
             
-            if(document.getElementById("count-all")) document.getElementById("count-all").textContent = exploits.length;
-            if(document.getElementById("count-working")) document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus).length;
-            if(document.getElementById("count-patched")) document.getElementById("count-patched").textContent = exploits.filter(e => !e.updateStatus).length;
+            const stats = {
+                all: exploits.length,
+                working: exploits.filter(e => e.updateStatus).length,
+                patched: exploits.filter(e => !e.updateStatus).length
+            };
+
+            Object.keys(stats).forEach(key => {
+                const el = document.getElementById(`count-${key}`);
+                if (el) el.textContent = stats[key];
+            });
             
-            render(exploits);
-        } catch (e) { console.error(e); }
+            applyFilters();
+        } catch (e) {
+            console.error("Gagal load data:", e);
+        }
     }
 
+    searchInput.oninput = applyFilters;
+    if (typeFilter) typeFilter.onchange = applyFilters;
+
+    document.querySelectorAll(".filters button").forEach(btn => {
+        btn.onclick = () => {
+            document.querySelector(".filters .active")?.classList.remove("active");
+            btn.classList.add("active");
+            currentStatus = btn.dataset.filter;
+            applyFilters();
+        };
+    });
+
+    // Menutup modal
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    window.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
+    
+    window.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    };
+
     loadData();
 });
