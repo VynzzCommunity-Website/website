@@ -34,15 +34,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 items.forEach(ex => {
                     const card = document.createElement("div");
-                    const statusClass = ex.updateStatus ? 'status-working' : 'status-patched';
-                    card.className = `card ${statusClass}`;
+                    card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
 
                     let sText = "UNDETECTED";
                     let bClass = "working";
 
-                    if (ex.clientmods) { sText = "BYPASSED"; bClass = "bypassed"; }
-                    else if (ex.detected) { sText = "PATCHED"; bClass = "patched"; }
-                    else if (ex.clientmods === false) { sText = "DETECTED"; bClass = "detected-warn"; }
+                    if (ex.clientmods) {
+                        sText = "BYPASSED"; bClass = "bypassed";
+                    } else if (ex.detected) {
+                        sText = "PATCHED"; bClass = "patched";
+                    } else if (ex.clientmods === false) {
+                        sText = "DETECTED"; bClass = "detected-warn";
+                    }
 
                     card.innerHTML = `
                         <h2>${ex.title}</h2>
@@ -50,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         <span class="badge ${bClass}">${sText}</span>
                     `;
                     
-                    card.onclick = () => openModal(ex._id || ex.id);
+                    card.onclick = () => openModal(ex._id);
                     grid.appendChild(card);
                 });
                 list.appendChild(grid);
@@ -58,55 +61,57 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-window.openModal = function(id) {
+    window.openModal = function(id) {
         const ex = exploits.find(e => (e._id === id || e.id === id));
         if (!ex) return;
         
         modal.classList.remove("hidden");
         
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
         document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
-
-        // --- LOGIKA PLATFORM (Mac -> MacOS) ---
-        let displayPlatform = ex.platform || "N/A";
-        if (displayPlatform.toLowerCase() === "mac" || displayPlatform.toLowerCase() === "macos") {
-            displayPlatform = "MacOS";
-        }
-        document.getElementById("modal-platform").textContent = displayPlatform;
-        // --------------------------------------
-
-        const typeMap = { 
-            'wexecutor': 'Executor', 
-            'wexternal': 'External', 
-            'aexecutor': 'Executor', 
-            'iexecutor': 'Executor', 
-            'mexecutor': 'Executor' 
-        };
-        document.getElementById("modal-type").textContent = typeMap[ex.extype] || "N/A";
-        document.getElementById("modal-price").textContent = ex.free ? "FREE" : "PAID";
-        document.getElementById("modal-version").textContent = ex.version || "N/A";
 
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
-        let colorClass = "orange";
+        let color = "red";
 
         if (ex.clientmods === true) {
             msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
-            colorClass = "purple";
+            color = "purple";
         } else if (ex.clientmods === false) {
             msg = "This Exploit might be detected by hyperion, use at your own risk";
-            colorClass = "orange";
+            color = "orange";
         } else if (ex.detected === false) {
             msg = "This Exploit is reported as undetected";
-            colorClass = "blue-hologram";
+            color = "blue-hologram";
         }
 
         warnBox.textContent = msg;
-        warnBox.className = `warning-box ${colorClass}`;
+        warnBox.className = `warning-box ${color}`;
 
-        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
-        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
+        // Perbaikan Logika Penamaan Tipe
+        let displayType = "External";
+        if (ex.extype === "wexecutor") {
+            displayType = "Executor";
+        } else if (ex.extype === "iexecutor") {
+            displayType = "iOS Executor";
+        } else if (ex.extype === "aexecutor") {
+            displayType = "Android Executor";
+        } else if (ex.extype === "mexecutor") {
+            displayType = "MacOS";
+        }
+
+        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+
+        document.getElementById("modal-extra-info").innerHTML = `
+            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
+            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
+            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
+            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
+        `;
+        
+        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
+        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
@@ -129,23 +134,41 @@ window.openModal = function(id) {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            document.getElementById('count-all').textContent = exploits.length;
-            document.getElementById('count-working').textContent = exploits.filter(e => e.updateStatus).length;
-            document.getElementById('count-patched').textContent = exploits.filter(e => !e.updateStatus).length;
+            
+            const stats = {
+                all: exploits.length,
+                working: exploits.filter(e => e.updateStatus).length,
+                patched: exploits.filter(e => !e.updateStatus).length
+            };
+
+            Object.keys(stats).forEach(key => {
+                const el = document.getElementById(`count-${key}`);
+                if (el) el.textContent = stats[key];
+            });
+            
             applyFilters();
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error("Gagal load data:", e);
+        }
     }
 
     searchInput.oninput = applyFilters;
-    typeFilter.onchange = applyFilters;
+    if (typeFilter) typeFilter.onchange = applyFilters;
+
     document.querySelectorAll(".filters button").forEach(btn => {
         btn.onclick = () => {
-            document.querySelector(".filters .active").classList.remove("active");
+            document.querySelector(".filters .active")?.classList.remove("active");
             btn.classList.add("active");
             currentStatus = btn.dataset.filter;
             applyFilters();
         };
     });
+
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+    
+    window.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    };
+
     loadData();
 });
