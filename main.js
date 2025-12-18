@@ -9,12 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
     let exploits = [];
     let currentStatus = "all";
 
-    // Fungsi Render Original Anda (Manual Grouping)
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
         
-        // Filter manual per platform (Logic asli Anda)
         const windows = data.filter(ex => ex.extype === "wexecutor");
         const androids = data.filter(ex => ex.extype === "aexecutor");
         const ios = data.filter(ex => ex.extype === "iexecutor");
@@ -39,14 +37,11 @@ document.addEventListener("DOMContentLoaded", function() {
                     let badgeColorClass = "working"; 
 
                     if (ex.clientmods === true) {
-                        statusText = "BYPASSED";
-                        badgeColorClass = "bypassed"; 
+                        statusText = "BYPASSED"; badgeColorClass = "bypassed"; 
                     } else if (ex.detected === true) {
-                        statusText = "PATCHED";
-                        badgeColorClass = "patched"; 
+                        statusText = "PATCHED"; badgeColorClass = "patched"; 
                     } else if (ex.clientmods === false) {
-                        statusText = "DETECTED";
-                        badgeColorClass = "detected-warn"; 
+                        statusText = "DETECTED"; badgeColorClass = "detected-warn"; 
                     }
 
                     card.innerHTML = `
@@ -62,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         };
 
-        // Urutan pemanggilan grup
         addGroup("WINDOWS EXECUTORS", windows);
         addGroup("ANDROID EXECUTORS", androids);
         addGroup("iOS EXECUTORS", ios);
@@ -70,21 +64,21 @@ document.addEventListener("DOMContentLoaded", function() {
         addGroup("EXTERNAL EXECUTORS", externals);
     }
 
-    // Fungsi Modal yang sudah disinkronkan dengan CSS baru
     window.openModal = function(id) {
         const ex = exploits.find(e => (e._id === id || e.id === id));
         if (!ex) return;
         
         modal.classList.remove("hidden");
         
-        // Update Title & Logo
+        // Modal Header
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
         
-        // Update Description (Fix slug)
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
+        // FITUR: Scroll Khusus untuk Deskripsi agar tidak merusak layout
+        const descBox = document.getElementById("modal-description");
+        descBox.innerHTML = `<div class="desc-scroll-area">${ex.slug?.fullDescription || ex.description || "No description available."}</div>`;
 
-        // Logic Warning Box & Status
+        // Warning Box Status
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
         let colorClass = "red";
@@ -99,37 +93,41 @@ document.addEventListener("DOMContentLoaded", function() {
             msg = "This Exploit is reported as undetected";
             colorClass = "blue-hologram";
         }
-
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${colorClass}`;
 
-        // Perbaikan Penamaan Tipe (Sesuai Permintaan)
+        // Perbaikan Penamaan Tipe
         let displayType = "External";
-        if (ex.extype === "wexecutor") {
-            displayType = "Executor";
-        } else if (ex.extype === "iexecutor") {
-            displayType = "iOS Executor";
-        } else if (ex.extype === "aexecutor") {
-            displayType = "Android Executor";
-        } else if (ex.extype === "mexecutor") {
-            displayType = "MacOS";
-        }
+        if (ex.extype === "wexecutor") displayType = "Executor";
+        else if (ex.extype === "iexecutor") displayType = "iOS Executor";
+        else if (ex.extype === "aexecutor") displayType = "Android Executor";
+        else if (ex.extype === "mexecutor") displayType = "MacOS";
 
         const price = ex.free ? "FREE" : (ex.cost || "PAID");
 
-        // Info Grid
+        // Info Grid yang Lebih Bagus
         document.getElementById("modal-extra-info").innerHTML = `
-            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
-            <div class="info-item"><label>Price</label><span>${price}</span></div>
-            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
-            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
+            <div class="info-item">
+                <label>Type</label>
+                <span class="val-styled">${displayType}</span>
+            </div>
+            <div class="info-item">
+                <label>Price</label>
+                <span class="val-styled highlight">${price}</span>
+            </div>
+            <div class="info-item">
+                <label>Version</label>
+                <span class="val-styled">${ex.version || 'N/A'}</span>
+            </div>
+            <div class="info-item">
+                <label>Platform</label>
+                <span class="val-styled">${ex.platform || 'N/A'}</span>
+            </div>
         `;
         
-        // UNC Stats
         document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
         document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
 
-        // Buttons
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     };
@@ -152,23 +150,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const response = await fetch(API_URL);
             exploits = await response.json();
             
-            // Stats counter (Sinkron dengan HTML baru)
-            const allEl = document.getElementById("count-all");
-            if(allEl) allEl.textContent = exploits.length;
-            
-            const workEl = document.getElementById("count-working");
-            if(workEl) workEl.textContent = exploits.filter(e => e.updateStatus === true).length;
-            
-            const patchEl = document.getElementById("count-patched");
-            if(patchEl) patchEl.textContent = exploits.filter(e => e.updateStatus === false).length;
+            if(document.getElementById("count-all")) document.getElementById("count-all").textContent = exploits.length;
+            if(document.getElementById("count-working")) document.getElementById("count-working").textContent = exploits.filter(e => e.updateStatus === true).length;
+            if(document.getElementById("count-patched")) document.getElementById("count-patched").textContent = exploits.filter(e => e.updateStatus === false).length;
             
             applyFilters();
-        } catch (err) {
-            console.log("Error loading data:", err);
-        }
+        } catch (err) { console.log("Error:", err); }
     }
 
-    // Event Listeners
     searchInput.oninput = applyFilters;
     if (typeFilter) typeFilter.onchange = applyFilters;
 
@@ -182,10 +171,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    
-    window.onclick = (e) => {
-        if (e.target === modal) modal.classList.add("hidden");
-    };
-
+    window.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
     loadData();
 });
