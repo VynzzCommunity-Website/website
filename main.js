@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description.";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
@@ -89,8 +89,18 @@ document.addEventListener("DOMContentLoaded", function() {
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${color}`;
 
-        // FIX: Perubahan wexecutor menjadi "Executor"
-        const displayType = ex.extype === "wexecutor" ? "Executor" : (ex.extype === "mexecutor" ? "MacOS" : "External");
+        // Perbaikan Logika Penamaan Tipe
+        let displayType = "External";
+        if (ex.extype === "wexecutor") {
+            displayType = "Executor";
+        } else if (ex.extype === "iexecutor") {
+            displayType = "iOS Executor";
+        } else if (ex.extype === "aexecutor") {
+            displayType = "Android Executor";
+        } else if (ex.extype === "mexecutor") {
+            displayType = "MacOS";
+        }
+
         const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
 
         document.getElementById("modal-extra-info").innerHTML = `
