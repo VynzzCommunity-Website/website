@@ -68,14 +68,21 @@ document.addEventListener("DOMContentLoaded", function() {
         
         modal.classList.remove("hidden");
         
-        // Basic Info
         document.getElementById("modal-title").textContent = ex.title;
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
         document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
-        // EXTRA INFO (Type, Price, Version)
-        document.getElementById("modal-type").textContent = ex.extype?.toUpperCase() || ex.platform || "N/A";
-        document.getElementById("modal-price").textContent = ex.isFree ? "FREE" : (ex.price || "PAID");
+        // Stats UNC/sUNC
+        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
+        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
+
+        // Grid Info (Bawah)
+        document.getElementById("modal-platform").textContent = ex.platform || "N/A";
+        
+        const typeMap = { 'wexecutor': 'Executor', 'wexternal': 'External', 'aexecutor': 'Executor', 'iexecutor': 'Executor', 'mexecutor': 'Executor' };
+        document.getElementById("modal-type").textContent = typeMap[ex.extype] || "N/A";
+        
+        document.getElementById("modal-price").textContent = ex.free ? "FREE" : "PAID";
         document.getElementById("modal-version").textContent = ex.version || "N/A";
 
         const warnBox = document.getElementById("modal-warning-text");
@@ -95,9 +102,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${colorClass}`;
-
-        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
-        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
@@ -120,11 +124,9 @@ document.addEventListener("DOMContentLoaded", function() {
         try {
             const res = await fetch(API_URL);
             exploits = await res.json();
-            
             document.getElementById('count-all').textContent = exploits.length;
             document.getElementById('count-working').textContent = exploits.filter(e => e.updateStatus).length;
             document.getElementById('count-patched').textContent = exploits.filter(e => !e.updateStatus).length;
-            
             applyFilters();
         } catch (e) { console.error(e); }
     }
@@ -139,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function() {
             applyFilters();
         };
     });
-
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
     loadData();
 });

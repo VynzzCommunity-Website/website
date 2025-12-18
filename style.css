@@ -56,7 +56,6 @@ header { text-align: center; margin-bottom: 40px; }
 
 .status-working { border-color: rgba(16, 185, 129, 0.3); }
 .status-working:hover { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); border-color: var(--working); }
-
 .status-patched { border-color: rgba(239, 68, 68, 0.3); }
 .status-patched:hover { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); border-color: var(--patched); }
 
@@ -80,27 +79,26 @@ header { text-align: center; margin-bottom: 40px; }
 #modal-logo { width: 60px; height: 60px; border-radius: 14px; object-fit: cover; background: #1e293b; }
 #modal-description { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 20px; }
 
-/* EXTRA INFO GRID */
-.modal-grid-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-.info-item { background: rgba(255,255,255,0.03); padding: 12px 8px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-.info-item label { display: block; font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
-.info-item span { font-size: 0.8rem; font-weight: 800; color: var(--text-main); }
-
 /* WARNING BOX */
 .warning-box { padding: 12px 16px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
 .blue-hologram { background: rgba(14, 165, 233, 0.1); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.2); }
 .purple { background: rgba(168, 85, 247, 0.1); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.2); }
 .orange { background: rgba(245, 158, 11, 0.1); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.2); }
 
-/* UNC STATS ROW */
-.stats-row { display: flex; gap: 10px; margin-bottom: 25px; }
+/* STATS ROW (UNC) */
+.stats-row { display: flex; gap: 10px; margin-bottom: 15px; }
 .stat-badge { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center; flex: 1; }
 .stat-badge span { display: block; font-size: 1.2rem; font-weight: 800; color: var(--accent); }
 .stat-badge label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; }
 
+/* GRID INFO (Platform, Type, Price, Version) */
+.modal-grid-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+.info-item { background: rgba(255,255,255,0.03); padding: 12px 10px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+.info-item label { display: block; font-size: 0.55rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; font-weight: 700; }
+.info-item span { font-size: 0.8rem; font-weight: 800; color: var(--text-main); }
+
+/* LINKS */
 .links-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .btn-link { padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.85rem; text-align: center; transition: 0.2s; }
 .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-.btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
 .btn-secondary { background: #334155; color: white; }
-.btn-secondary:hover { background: #475569; }
