@@ -4,22 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roblox Exploit Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
+    <style>
+        .main-footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-powered {
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .text-community {
+            font-size: 9px;
+            color: #475569;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin: 5px 0 0 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="title-row">
-                <h1>Executor Status</h1>
-                <div class="live"><span class="dot"></span> LIVE UPDATES</div>
+                <h1>Executor Status Tracker</h1>
+                <div class="live"><span class="dot"></span> LIVE</div>
             </div>
-            <div class="counters" style="display:flex; justify-content:center; gap:20px; margin-bottom:30px; font-size:0.9rem; opacity:0.8;">
-                <span>Total: <strong id="count-all">0</strong></span>
-                <span>Online: <strong id="count-working" style="color:#10b981">0</strong></span>
-                <span>Offline: <strong id="count-patched" style="color:#ef4444">0</strong></span>
+            <div class="stats-overview">
+                <span>Total: <b id="count-all">0</b></span>
+                <span class="text-working">Online: <b id="count-working">0</b></span>
+                <span class="text-patched">Offline: <b id="count-patched">0</b></span>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:center;">
-                <input type="text" id="search" placeholder="Search for executors..." autocomplete="off" />
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Search executors..." autocomplete="off" />
                 <div class="filters">
                     <button data-filter="all" class="active">All</button>
                     <button data-filter="working">Working</button>
@@ -39,8 +64,8 @@
         <section id="exploit-list"></section>
 
         <footer class="main-footer">
-            <p>Powered by <strong>Vynzz Exploit</strong></p>
-            <p style="font-size:0.7rem; margin-top:5px;">Big Thanks to DIFZ25X COMMUNITY</p>
+            <p class="text-powered">Powered By <span style="color: #6366f1; font-weight: 600;">Vynzz Exploit</span></p>
+            <p class="text-community">Big Thanks <span style="color: #94a3b8; font-weight: 500;">DIFZ25X COMMUNITY</span></p>
         </footer>
     </div>
 
@@ -51,16 +76,16 @@
                 <img id="modal-logo" src="" alt="Logo">
                 <h2 id="modal-title"></h2>
             </div>
-            <p id="modal-description" style="font-size:0.85rem; color:#94a3b8; margin-bottom:20px; line-height:1.6;"></p>
-            <div id="modal-warning-text"></div>
+            <div id="modal-description"></div>
+            <div id="modal-warning-text" class="warning-box"></div>
             <div class="stats-row">
                 <div id="modal-unc" class="stat-badge"></div>
                 <div id="modal-sunc" class="stat-badge"></div>
             </div>
             <div id="modal-extra-info" class="modal-grid-info"></div>
             <div class="links-row">
-                <a id="modal-website" target="_blank" class="btn-link">Website</a>
-                <a id="modal-discord" target="_blank" class="btn-link">Discord</a>
+                <a id="modal-website" target="_blank" class="btn-link btn-primary">Website</a>
+                <a id="modal-discord" target="_blank" class="btn-link btn-secondary">Discord</a>
             </div>
         </div>
     </div>

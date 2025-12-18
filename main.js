@@ -34,8 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 items.forEach(ex => {
                     const card = document.createElement("div");
-                    // Sinkronisasi class card dengan CSS
-                    card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
+                    
+                    // PENERAPAN LOGIKA UPDATESTATUS
+                    const statusClass = ex.updateStatus ? 'status-working' : 'status-patched';
+                    card.className = `card ${statusClass}`;
 
                     let sText = "UNDETECTED";
                     let bClass = "working";
@@ -69,44 +71,29 @@ document.addEventListener("DOMContentLoaded", function() {
         modal.classList.remove("hidden");
         
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
         document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
-        let color = "red";
+        let colorClass = "orange";
 
         if (ex.clientmods === true) {
             msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
-            color = "purple";
+            colorClass = "purple";
         } else if (ex.clientmods === false) {
             msg = "This Exploit might be detected by hyperion, use at your own risk";
-            color = "orange";
+            colorClass = "orange";
         } else if (ex.detected === false) {
             msg = "This Exploit is reported as undetected";
-            color = "blue-hologram";
+            colorClass = "blue-hologram";
         }
 
         warnBox.textContent = msg;
-        warnBox.className = `warning-box ${color}`;
+        warnBox.className = `warning-box ${colorClass}`;
 
-        let displayType = "External";
-        if (ex.extype === "wexecutor") displayType = "Executor";
-        else if (ex.extype === "iexecutor") displayType = "iOS Executor";
-        else if (ex.extype === "aexecutor") displayType = "Android Executor";
-        else if (ex.extype === "mexecutor") displayType = "MacOS";
-
-        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
-
-        document.getElementById("modal-extra-info").innerHTML = `
-            <div class="info-item"><label>Type</label><span>${displayType}</span></div>
-            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
-            <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
-            <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
-        `;
-        
-        document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
-        document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
+        document.getElementById("modal-unc").innerHTML = `<span>${ex.uncPercentage || 0}%</span><label>UNC</label>`;
+        document.getElementById("modal-sunc").innerHTML = `<span>${ex.suncPercentage || 0}%</span><label>sUNC</label>`;
 
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
@@ -130,29 +117,19 @@ document.addEventListener("DOMContentLoaded", function() {
             const res = await fetch(API_URL);
             exploits = await res.json();
             
-            const stats = {
-                all: exploits.length,
-                working: exploits.filter(e => e.updateStatus).length,
-                patched: exploits.filter(e => !e.updateStatus).length
-            };
-
-            Object.keys(stats).forEach(key => {
-                const el = document.getElementById(`count-${key}`);
-                if (el) el.textContent = stats[key];
-            });
+            document.getElementById('count-all').textContent = exploits.length;
+            document.getElementById('count-working').textContent = exploits.filter(e => e.updateStatus).length;
+            document.getElementById('count-patched').textContent = exploits.filter(e => !e.updateStatus).length;
             
             applyFilters();
-        } catch (e) {
-            console.error("Gagal load data:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     searchInput.oninput = applyFilters;
-    if (typeFilter) typeFilter.onchange = applyFilters;
-
+    typeFilter.onchange = applyFilters;
     document.querySelectorAll(".filters button").forEach(btn => {
         btn.onclick = () => {
-            document.querySelector(".filters .active")?.classList.remove("active");
+            document.querySelector(".filters .active").classList.remove("active");
             btn.classList.add("active");
             currentStatus = btn.dataset.filter;
             applyFilters();
@@ -160,10 +137,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
-    
-    window.onclick = (e) => {
-        if (e.target === modal) modal.classList.add("hidden");
-    };
-
     loadData();
 });
