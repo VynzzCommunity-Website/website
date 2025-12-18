@@ -1,44 +1,152 @@
-/* Scroll khusus untuk Deskripsi Modal */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+:root {
+    --primary: #6366f1;
+    --accent: #38bdf8;
+    --bg-dark: #020617;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-dark);
+    background: linear-gradient(-45deg, #0f172a, #020617, #1e1b4b, #020617);
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
+    color: #f1f5f9;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* EFREK BACKGROUND PARTIKEL */
+.particles {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: linear-gradient(to bottom, black, transparent);
+    z-index: -1;
+    animation: bgScroll 100s linear infinite;
+}
+
+@keyframes bgScroll { from { background-position: 0 0; } to { background-position: 0 1000px; } }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+
+/* HEADER */
+header { margin-bottom: 50px; text-align: center; }
+.title-wrap { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
+h1 {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-weight: 800; letter-spacing: -0.02em;
+}
+.live-status {
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 10px; font-weight: 900;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    display: flex; align-items: center; gap: 8px;
+}
+.pulse-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+
+/* COUNTERS & CONTROLS */
+.stats-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+.stat-pill { background: var(--glass); padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); font-size: 12px; color: #64748b; }
+.stat-pill span { color: #fff; font-weight: 700; margin-left: 5px; }
+
+#search {
+    width: 100%; padding: 16px 24px; background: var(--glass); border: 1px solid var(--border);
+    border-radius: 16px; color: #fff; font-size: 15px; outline: none; margin-bottom: 20px;
+}
+.filter-row { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+.status-filters { display: flex; gap: 8px; }
+.status-filters button, .type-select {
+    padding: 10px 18px; border-radius: 12px; background: var(--glass); border: 1px solid var(--border);
+    color: #94a3b8; font-weight: 600; cursor: pointer; transition: 0.3s;
+}
+.status-filters button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* GROUP HEADERS */
+.group-header { margin: 40px 0 20px; display: flex; align-items: center; gap: 15px; }
+.group-header::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+.group-header span { font-size: 10px; font-weight: 900; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
+
+/* GRID & CARDS */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.card {
+    background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border);
+    padding: 24px; border-radius: 20px; transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+    cursor: pointer; position: relative; overflow: hidden;
+}
+.card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.card.status-working { border-left: 4px solid #22c55e; }
+.card.status-patched { border-left: 4px solid #ef4444; }
+
+/* MODAL STYLES (THE BIG UPDATE) */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal.hidden { display: none; }
+.modal-content { 
+    background: #0f172a; border: 1px solid var(--border); border-radius: 28px; 
+    padding: 30px; width: 100%; max-width: 480px; position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+#close-modal { position: absolute; top: 20px; right: 20px; background: var(--glass); border: none; color: #94a3b8; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
+
+/* Scroll Area untuk Deskripsi */
 .desc-scroll-area {
-    max-height: 120px; /* Batasi tinggi agar tidak memenuhi layar */
+    max-height: 120px;
     overflow-y: auto;
-    padding-right: 10px;
-    font-size: 0.85rem;
+    margin: 15px 0;
+    padding-right: 8px;
+    font-size: 0.9rem;
     color: #94a3b8;
     line-height: 1.6;
-    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
 }
 
-/* Mempercantik info items (Type, Price, dll) */
-.val-styled {
-    display: block;
-    color: #f1f5f9;
-    font-weight: 700;
-    font-size: 0.95rem;
-    margin-top: 4px;
-}
+.desc-scroll-area::-webkit-scrollbar { width: 4px; }
+.desc-scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-.val-styled.highlight {
-    color: #38bdf8; /* Warna biru cerah untuk Price */
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-}
-
+/* Grid Info yang Lebih Bagus */
+.modal-grid-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
 .info-item {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
 }
+.info-item label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 800; letter-spacing: 1px; }
+.val-styled { display: block; color: #f1f5f9; font-weight: 700; font-size: 0.95rem; margin-top: 4px; }
+.val-styled.highlight { color: var(--accent); text-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
 
-.info-item:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(56, 189, 248, 0.3);
-}
+/* Warning Box & Badges */
+.warning-box { padding: 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; text-align: center; margin-bottom: 15px; border: 1px solid; }
+.warning-box.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; border-color: rgba(168, 85, 247, 0.2); }
+.warning-box.orange { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-color: rgba(245, 158, 11, 0.2); }
+.warning-box.blue-hologram { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.2); }
 
-/* Custom Scrollbar Modal */
-.desc-scroll-area::-webkit-scrollbar {
-    width: 4px;
-}
-.desc-scroll-area::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
+.stats-row { display: flex; gap: 10px; margin-bottom: 15px; }
+.stat-badge { flex: 1; background: rgba(56, 189, 248, 0.05); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(56, 189, 248, 0.1); }
+.stat-badge .val { display: block; font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+.stat-badge .lbl { font-size: 9px; font-weight: 800; color: #7dd3fc; }
+
+/* FOOTER */
+.main-footer { text-align: center; margin-top: 60px; padding-bottom: 40px; }
+.text-powered { font-size: 10px; color: #444; letter-spacing: 3px; font-weight: 800; text-transform: uppercase; }
+.text-powered span { color: #888; }
