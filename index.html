@@ -5,66 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roblox Exploit Tracker</title>
     <link rel="stylesheet" href="style.css" />
-    <style>
-        /* CSS Tambahan untuk Footer agar tetap rapi */
-        .main-footer {
-            text-align: center;
-            padding: 40px 20px;
-            font-family: sans-serif;
-            margin-top: 20px;
-        }
-
-        .text-powered {
-            font-size: 11px;
-            color: #888;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin: 0;
-        }
-
-        .text-community {
-            font-size: 9px;
-            color: #bbb;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin: 5px 0 0 0;
-        }
-    </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
+    <div class="particles"></div>
+
     <div class="container">
         <header>
-            <div class="title-row">
-                <h1>Roblox Executor Update Tracker</h1>
-                <div class="live"><span class="dot"></span> LIVE</div>
+            <div class="header-top">
+                <div class="title-wrap">
+                    <h1>Roblox Executor Update Tracker</h1>
+                    <div class="live-status"><span class="pulse-dot"></span> LIVE SYSTEM</div>
+                </div>
+                <p class="subtitle">Monitor real-time status and availability of roblox exploits.</p>
             </div>
-            <p>Real-time exploit availability tracker</p>
-            <div class="counters">
-                <span>All: <strong id="count-all">0</strong></span>
-                <span>Working: <strong id="count-working">0</strong></span>
-                <span>Patched: <strong id="count-patched">0</strong></span>
+
+            <div class="stats-container">
+                <div class="stat-pill">All <span><strong id="count-all">0</strong></span></div>
+                <div class="stat-pill">Working <span><strong id="count-working">0</strong></span></div>
+                <div class="stat-pill">Patched <span><strong id="count-patched">0</strong></span></div>
             </div>
-            <input type="text" id="search" placeholder="Search exploit..." autocomplete="off" />
-            <div class="filters">
-                <button data-filter="all" class="active">All</button>
-                <button data-filter="working">Working</button>
-                <button data-filter="patched">Patched</button>
-                <select id="type-filter" class="type-select">
-                    <option value="all">All Types</option>
-                    <option value="wexecutor">Windows</option>
-                    <option value="aexecutor">Android</option>
-                    <option value="iexecutor">iOS</option>
-                    <option value="mexecutor">MacOS</option>
-                    <option value="wexternal">External</option>
-                </select>
+
+            <div class="control-panel">
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="Search exploit name..." autocomplete="off" />
+                </div>
+                <div class="filter-row">
+                    <div class="status-filters">
+                        <button data-filter="all" class="active">All Status</button>
+                        <button data-filter="working">Working</button>
+                        <button data-filter="patched">Patched</button>
+                    </div>
+                    <select id="type-filter" class="type-select">
+                        <option value="all">Every Platform</option>
+                        <option value="wexecutor">Windows</option>
+                        <option value="aexecutor">Android</option>
+                        <option value="iexecutor">iOS</option>
+                        <option value="mexecutor">MacOS</option>
+                        <option value="wexternal">External</option>
+                    </select>
+                </div>
             </div>
         </header>
 
-        <section id="exploit-list"></section>
+        <main id="exploit-list"></main>
 
         <footer class="main-footer">
-            <p class="text-powered">Powered By <span style="color: #555; font-weight: 600;">Vynzz Exploit</span></p>
-            <p class="text-community">Big Thanks <span style="color: #999; font-weight: 500;">DIFZ25X COMMUNITY</span></p>
+            <p class="text-powered">OPERATED BY <span>Vynzz Exploit</span></p>
+            <p class="text-community">ESTABLISHED WITH <span>DIFZ25X COMMUNITY</span></p>
         </footer>
     </div>
 
@@ -72,7 +60,7 @@
         <div class="modal-content">
             <button id="close-modal">✕</button>
             <div class="modal-header">
-                <img id="modal-logo" src="" alt="Logo">
+                <img id="modal-logo" src="" alt="icon">
                 <h2 id="modal-title"></h2>
             </div>
             <p id="modal-description"></p>

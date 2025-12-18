@@ -9,56 +9,64 @@ document.addEventListener("DOMContentLoaded", function() {
     let exploits = [];
     let currentStatus = "all";
 
+    // Fungsi render tetap pakai gaya asli Anda (manual grouping)
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
         
-        const categories = [
-            { label: "WINDOWS EXECUTORS", type: "wexecutor" },
-            { label: "ANDROID EXECUTORS", type: "aexecutor" },
-            { label: "iOS EXECUTORS", type: "iexecutor" },
-            { label: "MACOS EXECUTORS", type: "mexecutor" },
-            { label: "EXTERNAL EXECUTORS", type: "wexternal" }
-        ];
+        // Mempertahankan cara Anda memfilter manual per kategori
+        const windows = data.filter(ex => ex.extype === "wexecutor");
+        const androids = data.filter(ex => ex.extype === "aexecutor");
+        const ios = data.filter(ex => ex.extype === "iexecutor");
+        const macos = data.filter(ex => ex.extype === "mexecutor");
+        const externals = data.filter(ex => ex.extype === "wexternal");
 
-        categories.forEach(cat => {
-            const items = data.filter(ex => ex.extype === cat.type);
+        const addGroup = (title, items) => {
             if (items.length > 0) {
-                const header = document.createElement("div");
-                header.className = "group-header";
-                header.innerHTML = `<span>${cat.label}</span>`;
-                list.appendChild(header);
+                const h = document.createElement("div");
+                h.className = "group-header";
+                h.innerHTML = `<span>${title}</span>`;
+                list.appendChild(h);
                 
-                const grid = document.createElement("div");
-                grid.className = "grid";
+                const gridWrapper = document.createElement("div");
+                gridWrapper.className = "grid";
                 
                 items.forEach(ex => {
                     const card = document.createElement("div");
                     card.className = `card ${ex.updateStatus ? 'status-working' : 'status-patched'}`;
 
-                    let sText = "UNDETECTED";
-                    let bClass = "working";
+                    let statusText = "UNDETECTED";
+                    let badgeColorClass = "working"; 
 
-                    if (ex.clientmods) {
-                        sText = "BYPASSED"; bClass = "bypassed";
-                    } else if (ex.detected) {
-                        sText = "PATCHED"; bClass = "patched";
+                    if (ex.clientmods === true) {
+                        statusText = "BYPASSED";
+                        badgeColorClass = "bypassed"; 
+                    } else if (ex.detected === true) {
+                        statusText = "PATCHED";
+                        badgeColorClass = "patched"; 
                     } else if (ex.clientmods === false) {
-                        sText = "DETECTED"; bClass = "detected-warn";
+                        statusText = "DETECTED";
+                        badgeColorClass = "detected-warn"; 
                     }
 
                     card.innerHTML = `
                         <h2>${ex.title}</h2>
                         <p>Platform: ${ex.platform}</p>
-                        <span class="badge ${bClass}">${sText}</span>
+                        <span class="badge ${badgeColorClass}">${statusText}</span>
                     `;
                     
                     card.onclick = () => openModal(ex._id);
-                    grid.appendChild(card);
+                    gridWrapper.appendChild(card);
                 });
-                list.appendChild(grid);
+                list.appendChild(gridWrapper);
             }
-        });
+        };
+
+        addGroup("WINDOWS EXECUTORS", windows);
+        addGroup("ANDROID EXECUTORS", androids);
+        addGroup("iOS EXECUTORS", ios);
+        addGroup("MACOS EXECUTORS", macos);
+        addGroup("EXTERNAL EXECUTORS", externals);
     }
 
     window.openModal = function(id) {
@@ -68,8 +76,9 @@ document.addEventListener("DOMContentLoaded", function() {
         modal.classList.remove("hidden");
         
         document.getElementById("modal-title").textContent = ex.title;
-        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "https://via.placeholder.com/60";
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
+        // Fix slug description
+        document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description.";
 
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
@@ -89,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
         warnBox.textContent = msg;
         warnBox.className = `warning-box ${color}`;
 
-        // Perbaikan Logika Penamaan Tipe
+        // Logika penamaan tipe sesuai request Anda
         let displayType = "External";
         if (ex.extype === "wexecutor") {
             displayType = "Executor";
@@ -101,11 +110,11 @@ document.addEventListener("DOMContentLoaded", function() {
             displayType = "MacOS";
         }
 
-        const displayPrice = ex.free ? "FREE" : (ex.cost || "PAID");
+        const price = ex.free ? "FREE" : (ex.cost || "PAID");
 
         document.getElementById("modal-extra-info").innerHTML = `
             <div class="info-item"><label>Type</label><span>${displayType}</span></div>
-            <div class="info-item"><label>Price</label><span>${displayPrice}</span></div>
+            <div class="info-item"><label>Price</label><span>${price}</span></div>
             <div class="info-item"><label>Version</label><span>${ex.version || 'N/A'}</span></div>
             <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
         `;
@@ -119,36 +128,35 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function applyFilters() {
         const query = searchInput.value.toLowerCase();
-        const filtered = exploits.filter(ex => {
-            const matchSearch = ex.title.toLowerCase().includes(query);
-            const matchType = typeFilter.value === "all" || ex.extype === typeFilter.value;
-            let matchStatus = true;
-            if (currentStatus === "working") matchStatus = (ex.updateStatus === true);
-            if (currentStatus === "patched") matchStatus = (ex.updateStatus === false);
-            return matchSearch && matchType && matchStatus;
+        const res = exploits.filter(ex => {
+            const mSearch = ex.title.toLowerCase().includes(query);
+            const mType = typeFilter.value === "all" || ex.extype === typeFilter.value;
+            let mStatus = true;
+            if (currentStatus === "working") mStatus = (ex.updateStatus === true);
+            if (currentStatus === "patched") mStatus = (ex.updateStatus === false);
+            return mSearch && mType && mStatus;
         });
-        render(filtered);
+        render(res);
     }
 
     async function loadData() {
         try {
-            const res = await fetch(API_URL);
-            exploits = await res.json();
+            const response = await fetch(API_URL);
+            exploits = await response.json();
             
-            const stats = {
-                all: exploits.length,
-                working: exploits.filter(e => e.updateStatus).length,
-                patched: exploits.filter(e => !e.updateStatus).length
-            };
-
-            Object.keys(stats).forEach(key => {
-                const el = document.getElementById(`count-${key}`);
-                if (el) el.textContent = stats[key];
-            });
+            // Update stats counter
+            const allEl = document.getElementById("count-all");
+            if(allEl) allEl.textContent = exploits.length;
+            
+            const workEl = document.getElementById("count-working");
+            if(workEl) workEl.textContent = exploits.filter(e => e.updateStatus === true).length;
+            
+            const patchEl = document.getElementById("count-patched");
+            if(patchEl) patchEl.textContent = exploits.filter(e => e.updateStatus === false).length;
             
             applyFilters();
-        } catch (e) {
-            console.error("Gagal load data:", e);
+        } catch (err) {
+            console.log("Error loading data:", err);
         }
     }
 
