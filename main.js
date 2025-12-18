@@ -9,12 +9,12 @@ document.addEventListener("DOMContentLoaded", function() {
     let exploits = [];
     let currentStatus = "all";
 
-    // Fungsi render tetap pakai gaya asli Anda (manual grouping)
+    // Fungsi Render Original Anda (Manual Grouping)
     function render(data) {
         if (!list) return;
         list.innerHTML = "";
         
-        // Mempertahankan cara Anda memfilter manual per kategori
+        // Filter manual per platform (Logic asli Anda)
         const windows = data.filter(ex => ex.extype === "wexecutor");
         const androids = data.filter(ex => ex.extype === "aexecutor");
         const ios = data.filter(ex => ex.extype === "iexecutor");
@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         };
 
+        // Urutan pemanggilan grup
         addGroup("WINDOWS EXECUTORS", windows);
         addGroup("ANDROID EXECUTORS", androids);
         addGroup("iOS EXECUTORS", ios);
@@ -69,36 +70,40 @@ document.addEventListener("DOMContentLoaded", function() {
         addGroup("EXTERNAL EXECUTORS", externals);
     }
 
+    // Fungsi Modal yang sudah disinkronkan dengan CSS baru
     window.openModal = function(id) {
         const ex = exploits.find(e => (e._id === id || e.id === id));
         if (!ex) return;
         
         modal.classList.remove("hidden");
         
+        // Update Title & Logo
         document.getElementById("modal-title").textContent = ex.title;
-        // Fix slug description
         document.getElementById("modal-logo").src = ex.slug?.logo || ex.logo || "";
-        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description.";
+        
+        // Update Description (Fix slug)
+        document.getElementById("modal-description").textContent = ex.slug?.fullDescription || ex.description || "No description available.";
 
+        // Logic Warning Box & Status
         const warnBox = document.getElementById("modal-warning-text");
         let msg = "Status Unknown";
-        let color = "red";
+        let colorClass = "red";
 
         if (ex.clientmods === true) {
             msg = "This Exploit bypasses client modification bans but potentially could cause ban in banwaves";
-            color = "purple";
+            colorClass = "purple";
         } else if (ex.clientmods === false) {
             msg = "This Exploit might be detected by hyperion, use at your own risk";
-            color = "orange";
+            colorClass = "orange";
         } else if (ex.detected === false) {
             msg = "This Exploit is reported as undetected";
-            color = "blue-hologram";
+            colorClass = "blue-hologram";
         }
 
         warnBox.textContent = msg;
-        warnBox.className = `warning-box ${color}`;
+        warnBox.className = `warning-box ${colorClass}`;
 
-        // Logika penamaan tipe sesuai request Anda
+        // Perbaikan Penamaan Tipe (Sesuai Permintaan)
         let displayType = "External";
         if (ex.extype === "wexecutor") {
             displayType = "Executor";
@@ -112,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         const price = ex.free ? "FREE" : (ex.cost || "PAID");
 
+        // Info Grid
         document.getElementById("modal-extra-info").innerHTML = `
             <div class="info-item"><label>Type</label><span>${displayType}</span></div>
             <div class="info-item"><label>Price</label><span>${price}</span></div>
@@ -119,9 +125,11 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="info-item"><label>Platform</label><span>${ex.platform || 'N/A'}</span></div>
         `;
         
+        // UNC Stats
         document.getElementById("modal-unc").innerHTML = `<span class="val">${ex.uncPercentage || 0}%</span><span class="lbl">UNC</span>`;
         document.getElementById("modal-sunc").innerHTML = `<span class="val">${ex.suncPercentage || 0}%</span><span class="lbl">sUNC</span>`;
 
+        // Buttons
         document.getElementById("modal-website").href = ex.websitelink || "#";
         document.getElementById("modal-discord").href = ex.discordlink || "#";
     };
@@ -144,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const response = await fetch(API_URL);
             exploits = await response.json();
             
-            // Update stats counter
+            // Stats counter (Sinkron dengan HTML baru)
             const allEl = document.getElementById("count-all");
             if(allEl) allEl.textContent = exploits.length;
             
@@ -160,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // Event Listeners
     searchInput.oninput = applyFilters;
     if (typeFilter) typeFilter.onchange = applyFilters;
 
