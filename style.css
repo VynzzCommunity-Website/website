@@ -77,3 +77,32 @@ header { text-align: center; margin-bottom: 40px; }
 .btn-link { padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.85rem; text-align: center; }
 .btn-primary { background: var(--primary); color: white; }
 .btn-secondary { background: #334155; color: white; }
+
+/* MODAL */
+/* Pastikan bagian ini ada di style.css asli Anda agar kotak info muncul rapi */
+.modal-grid-info { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px; 
+    margin-bottom: 20px; 
+}
+.info-item { 
+    background: rgba(255,255,255,0.03); 
+    padding: 12px 10px; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+    text-align: center; 
+}
+.info-item label { 
+    display: block; 
+    font-size: 0.55rem; 
+    color: var(--text-dim); 
+    text-transform: uppercase; 
+    margin-bottom: 4px; 
+    font-weight: 700; 
+}
+.info-item span { 
+    font-size: 0.8rem; 
+    font-weight: 800; 
+    color: var(--text-main); 
+}
